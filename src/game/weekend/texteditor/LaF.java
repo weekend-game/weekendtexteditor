@@ -1,6 +1,7 @@
 package game.weekend.texteditor;
 
 import java.awt.Component;
+import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -10,6 +11,7 @@ import javax.swing.UIManager;
  */
 public class LaF {
 
+	/** L&amp;F по умолчанию */
 	public static String DEFAULT_LAF = "javax.swing.plaf.metal.MetalLookAndFeel";
 
 	/**
@@ -26,7 +28,6 @@ public class LaF {
 	public void setLookAndFeel(String className) {
 		try {
 			UIManager.setLookAndFeel(className);
-			// increaseFont();
 
 			for (Component c : components)
 				SwingUtilities.updateComponentTreeUI(c);
@@ -47,33 +48,32 @@ public class LaF {
 	}
 
 	/**
-	 * Указать перечень компонентов для обнавления L&F.
+	 * Указать перечень компонентов для обнавления L&amp;F.
 	 * 
 	 * @param components перечень компонентов
 	 */
-	public void setupComponents(Component... components) {
-		this.components = components;
+	public void setUpdateComponents(Component... components) {
+		for (Component c : components)
+			this.components.add(c);
 	}
 
 	/**
-	 * Увеличить шрифт. Просто попробовал.
+	 * Добавить компонент для обновления L&amp;F.
+	 * 
+	 * @param component компонент
 	 */
-//	private void increaseFont() {
-//		float scale = (float) (Toolkit.getDefaultToolkit().getScreenResolution() / 96.0);
-//
-//		scale = (float) (scale > 1.5F ? 1.1 : scale);
-//
-//		Enumeration<?> keys = UIManager.getDefaults().keys();
-//		while (keys.hasMoreElements()) {
-//			Object key = keys.nextElement();
-//			Object value = UIManager.get(key);
-//			if (value instanceof FontUIResource) {
-//				Font font = (Font) value;
-//				font = font.deriveFont((float) font.getSize() * scale);
-//				UIManager.put(key, font);
-//			}
-//		}
-//	}
+	public void addUpdateComponent(Component component) {
+		components.add(component);
+	}
 
-	private Component[] components;
+	/**
+	 * Удалить компонент из списка обновления L&amp;F.
+	 * 
+	 * @param component компонент
+	 */
+	public void removeUpdateComponent(Component component) {
+		components.remove(component);
+	}
+
+	private ArrayList<Component> components = new ArrayList<Component>();
 }

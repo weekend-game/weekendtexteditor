@@ -9,22 +9,23 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 /**
- * Поиск текста оображенного в JEditorPane.
+ * Замена текста отображенного в JEditorPane.
  */
-public class Finder {
+public class Replacer {
 
 	/**
-	 * Создать объект для поиска текста оображенного в JEditorPane.
+	 * Создать объект для замены текста оображенного в JEditorPane.
 	 *
 	 * @param pane  собственно JEditorPane.
 	 * @param frame фрейм в котором расположена JEditorPane.
-	 * @param laf   объект LaF приложения
+	 * @param laf объект LaF приложения
 	 */
-	public Finder(JEditorPane pane, JFrame frame, LaF laf) {
+	public Replacer(JEditorPane pane, JFrame frame, LaF laf) {
 		this.pane = pane;
 		this.appFrame = frame;
 		this.laf = laf;
 		this.pattern = Proper.getProperty("Pattern", "");
+		this.replacer = Proper.getProperty("Replacer", "");
 		this.caseSensitive = Proper.getProperty("CaseSensitive", "FALSE").equalsIgnoreCase("TRUE") ? true : false;
 	}
 
@@ -36,15 +37,16 @@ public class Finder {
 	}
 
 	/**
-	 * Отображение диалогового окна для указания шаблона поиска и затем поиск
+	 * Отображение диалогового окна для указания шаблона поиска и затем замена
 	 * указанного шаблона.
 	 */
 	@SuppressWarnings("serial")
 	public void find() {
-		if (finderFrame == null) {
-			finderFrame = new FinderFrame(appFrame) {
+		if (replacerFrame == null) {
+			replacerFrame = new ReplacerFrame(appFrame) {
 				{
 					setPattern(pattern);
+					setReplacer(replacer);
 					setCase(caseSensitive);
 					setFindDown(true);
 					laf.addUpdateComponent(this);
@@ -52,38 +54,113 @@ public class Finder {
 
 				@Override
 				public void find() {
+					// Читаю атрибуты поиска
 					pattern = getPattern();
 					Proper.setProperty("Pattern", pattern);
-
 					caseSensitive = getCase();
 					Proper.setProperty("CaseSensitive", caseSensitive ? "TRUE" : "FALSE");
 
+					// Поиск вперед или назад
 					findDown = getFindDown();
-
-					if (findDown) {
+					if (findDown)
 						findForward();
-					} else {
+					else
 						findBack();
+
+					// Курсор на поле шаблона поиска
+					whatFocus();
+				}
+
+				@Override
+				public void replace() {
+
+					// Читаю атрибуты замены
+					Proper.setProperty("Replacer", replacer);
+					caseSensitive = getCase();
+					Proper.setProperty("CaseSensitive", caseSensitive ? "TRUE" : "FALSE");
+
+					// Выделение совпадает с шаблоном?
+					if (selectionMatchPattern()) {
+						int start = pane.getSelectionStart();
+						// Заменить выделение
+						pane.replaceSelection(replacer);
+						// Выделить замену
+						pane.select(start, start + pattern.length());
+					} else {
+						// Искать далее
+						findDown = getFindDown();
+						if (findDown)
+							findForward();
+						else
+							findBack();
+					}
+				}
+
+				@Override
+				public void replaceAll() {
+
+					// Читаю атрибуты замены
+					Proper.setProperty("Replacer", replacer);
+					caseSensitive = getCase();
+					Proper.setProperty("CaseSensitive", caseSensitive ? "TRUE" : "FALSE");
+
+					// Выделение НЕ совпадает с шаблоном?
+					if (!selectionMatchPattern()) {
+						// Искать далее
+						findDown = getFindDown();
+						if (findDown)
+							findForward();
+						else
+							findBack();
 					}
 
-					whatFocus();
+					while (selectionMatchPattern()) {
+						// Заменить выделение
+						pane.replaceSelection(replacer);
+
+						// Искать далее
+						findDown = getFindDown();
+						if (findDown)
+							findForward();
+						else
+							findBack();
+					}
+				}
+
+				/**
+				 * Выделение совпадает с шаблоном?
+				 * 
+				 * @return true/false
+				 */
+				private boolean selectionMatchPattern() {
+					String selectedText = pane.getSelectedText();
+					if (selectedText == null)
+						return false;
+
+					boolean found = false;
+					if (caseSensitive)
+						found = selectedText.equals(pattern);
+					else
+						found = selectedText.equalsIgnoreCase(pattern);
+					return found;
 				}
 
 				@Override
 				public void close() {
 					super.close();
-					laf.removeUpdateComponent(finderFrame);
-					finderFrame = null;
+					laf.removeUpdateComponent(replacerFrame);
+					replacerFrame = null;
 				}
+
 			};
 		}
-		finderFrame.setVisible(true);
+		replacerFrame.setVisible(true);
 	}
 
 	/**
 	 * Искать текущую подстроку вперёд
 	 */
-	public void findForward() {
+	private void findForward() {
 		try {
 			String content = getContent();
 			String pattern = getPattern();
@@ -105,7 +182,7 @@ public class Finder {
 	/**
 	 * Искать текущую подстроку назад
 	 */
-	public void findBack() {
+	private void findBack() {
 		try {
 			String content = getContent();
 			String pattern = getPattern();
@@ -182,9 +259,10 @@ public class Finder {
 	private JEditorPane pane;
 	private LaF laf;
 
-	private FinderFrame finderFrame;
+	private ReplacerFrame replacerFrame;
 
 	private String pattern = "";
+	private String replacer = "";
 	private boolean caseSensitive = false;
 	private boolean findDown = true;
 

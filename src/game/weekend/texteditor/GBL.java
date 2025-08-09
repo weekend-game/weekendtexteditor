@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
@@ -100,6 +101,25 @@ public class GBL {
 		gbc.gridheight = 1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.CENTER;
+		gbl.setConstraints(c, gbc);
+		pane.add(c);
+
+		gbc.gridx += width;
+	}
+
+	/**
+	 * Добавить в текущую строку растяжку по горизонтали.
+	 * 
+	 * @param width ширина растяжки.
+	 */
+	public void addHor(int width) {
+		gbc.weightx = 0.1;
+		gbc.weighty = 0.0;
+		gbc.gridwidth = width;
+		gbc.gridheight = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.CENTER;
+		JLabel c = new JLabel("");
 		gbl.setConstraints(c, gbc);
 		pane.add(c);
 

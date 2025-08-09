@@ -6,11 +6,7 @@ import java.nio.file.Files;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.text.Document;
-import javax.swing.undo.UndoManager;
 
 /**
  * Работа с файлами.
@@ -25,29 +21,19 @@ public class Filer {
 
 	/**
 	 * Создать объект работы с файлами.
-	 * 
-	 * @param editor основной объект приложения.
 	 */
-	public Filer(WeekendTextEditor editor, LastFiles lastFiles, Finder finder) {
+	public Filer(WeekendTextEditor app, Editor editor, LastFiles lastFiles, Finder finder, Replacer replacer,
+			Messenger messenger) {
+		this.app = app;
 		this.editor = editor;
 		this.lastFiles = lastFiles;
 		this.finder = finder;
+		this.replacer = replacer;
+		this.messenger = messenger;
 	}
 
 	/**
-	 * Получить UndoManager.
-	 * 
-	 * @return UndoManager.
-	 */
-	public UndoManager getUndoManager() {
-		return undoManager;
-	}
-
-	/**
-	 * Уствновить для Filer ссылку на Act. Т.к. Filer управляетс элементами
-	 * меню/toolbar-а.
-	 * 
-	 * @param act объект класса Act.
+	 * Установить объект управляющий действиями.
 	 */
 	public void setAct(Act act) {
 		this.act = act;
@@ -60,17 +46,16 @@ public class Filer {
 		if (!saveFileIfNecessary())
 			return;
 
-		editor.getFrame().setTitle(WeekendTextEditor.APP_NAME);
+		app.getFrame().setTitle(WeekendTextEditor.APP_NAME);
 
 		file = null;
 
-		editor.getPane().setText("");
-		editor.getPane().setCaretPosition(0);
-		editor.getPane().requestFocus();
+		editor.setText("");
 
-		finder.resetPosition();
-
-		addFileChangedListener();
+		if (finder != null)
+			finder.resetPosition();
+		if (replacer != null)
+			replacer.resetPosition();
 	}
 
 	/**
@@ -80,7 +65,7 @@ public class Filer {
 		if (!saveFileIfNecessary())
 			return;
 
-		File file = showDialogue();
+		File file = showOpenDialogue();
 		if (file != null) {
 			open(file);
 		}
@@ -122,36 +107,36 @@ public class Filer {
 	 * @param file открываемый файл
 	 */
 	public void open(File file) {
-		if (file != null) {
-			if (file.exists()) {
+		if (file == null)
+			return;
+
+		if (!file.exists()) {
+			// Если файл не обнаружился, то удаляю его из списка последних открытых файлов
+			lastFiles.remove(file.getPath());
+
+			// Выдаю сообщение об этом неприятном событии
+			messenger.err("Файл " + file.getPath() + " не найден.");
+
+		} else {
+			try {
+				String content = Files.readString(file.toPath());
 				this.file = file;
 
+				// Передаю прочитанное редактору
+				editor.setText(content);
+
 				// Отображаю имя открытого файла в заголовке приложения
-				editor.getFrame().setTitle(WeekendTextEditor.APP_NAME + " - " + file.getPath());
+				app.getFrame().setTitle(WeekendTextEditor.APP_NAME + " - " + file.getPath());
 
 				// Запоминаю его в списке последних открытых файлов
 				lastFiles.put(file.getPath());
 
-				try {
-					String content = new String(Files.readAllBytes(file.toPath()));
-					editor.getPane().setText(content);
-					editor.getPane().setCaretPosition(0);
-					editor.getPane().requestFocus();
-					addFileChangedListener();
-				} catch (IOException e) {
-					editor.err("Не удалось открыть файл " + file.getPath() + ".\n" + e);
-				}
-
-			} else {
-				// Если файл не открылся, то удаляю его из списка последних открытых файлов
-				lastFiles.remove(file.getPath());
-
-				// Выдаю сообщение об этом неприятном событии
-				editor.err("Файл " + file.getPath() + " не найден.");
+			} catch (IOException e) {
+				messenger.err("Не удалось открыть файл " + file.getPath() + ".\n" + e);
 			}
-
-			editor.refreshMenuFile();
 		}
+
+		act.refreshMenuFile();
 	}
 
 	/**
@@ -160,25 +145,42 @@ public class Filer {
 	 * @param file файл для сохранения текста
 	 */
 	public void save(File file) {
-		if (file != null) {
-			try {
-				Files.write(file.toPath(), editor.getPane().getText().getBytes());
+		if (file == null)
+			return;
 
-				this.file = file;
+		try {
+			Files.write(file.toPath(), editor.getPane().getText().getBytes());
+			this.file = file;
+			editor.setChanged(false);
 
-				// Отображаю имя файла в заголовке приложения
-				editor.getFrame().setTitle(WeekendTextEditor.APP_NAME + " - " + file.getPath());
+			// Отображаю имя файла в заголовке приложения
+			app.getFrame().setTitle(WeekendTextEditor.APP_NAME + " - " + file.getPath());
 
-				// Запоминаю его в списке последних открытых файлов
-				lastFiles.put(file.getPath());
+			// Запоминаю его в списке последних открытых файлов
+			lastFiles.put(file.getPath());
 
-				editor.refreshMenuFile();
+			act.refreshMenuFile();
 
-				addFileChangedListener();
-			} catch (IOException e) {
-				editor.err("Не удалось сохранить файл " + file.getPath() + ".\n" + e);
-			}
+			WeekendTextEditor.status.showMessage("Сохранено в файл " + file.getPath());
+
+		} catch (IOException e) {
+			messenger.err("Не удалось сохранить файл " + file.getPath() + ".\n" + e);
 		}
+	}
+
+	private boolean saveFileIfNecessary() {
+		if (!editor.isChanged())
+			return true;
+
+		int retVal = messenger.conf("Текст был изменён. Вы хотите сохранить изменения в файле?");
+		if (retVal == JOptionPane.YES_OPTION) {
+			saveFile();
+			return !editor.isChanged();
+		}
+		if (retVal == JOptionPane.NO_OPTION) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -187,9 +189,9 @@ public class Filer {
 	 * @return файл указанный пользователем или null, если пользователь отказался от
 	 *         открытия файла.
 	 */
-	private File showDialogue() {
-		JFileChooser chooser = getChooser(file);
-		int result = chooser.showOpenDialog(editor.getFrame());
+	private File showOpenDialogue() {
+		JFileChooser chooser = getOpenChooser(file);
+		int result = chooser.showOpenDialog(app.getFrame());
 
 		File selectedFile = null;
 		if (result == JFileChooser.APPROVE_OPTION) {
@@ -199,30 +201,14 @@ public class Filer {
 	}
 
 	/**
-	 * Получить файл для сохранения текста посредством диалога сохранения файла.
-	 * 
-	 * @return файл указанный пользователем или null, если пользователь отказался от
-	 *         сохранения файла.
-	 */
-	private File showSaveDialogue() {
-		JFileChooser chooser = getSaveChooser(file);
-		int result = chooser.showSaveDialog(editor.getFrame());
-
-		File selectedFile = null;
-		if (result == JFileChooser.APPROVE_OPTION)
-			selectedFile = chooser.getSelectedFile();
-		return selectedFile;
-	}
-
-	/**
-	 * Получить стандартное диалоговое окно для открытия файла программы настроенное
-	 * в соответствии с нуждами программы.
+	 * Получить стандартное диалоговое окно для открытия файла настроенное в
+	 * соответствии с нуждами программы.
 	 * 
 	 * @param currentFile текущий редактируемый файл.
 	 * 
 	 * @return настроенное диалоговое окно.
 	 */
-	private JFileChooser getChooser(File currentFile) {
+	private JFileChooser getOpenChooser(File currentFile) {
 		JFileChooser chooser = new JFileChooser();
 		String curDir = (currentFile == null) ? "." : currentFile.getPath();
 		chooser.setCurrentDirectory(new File(curDir));
@@ -249,6 +235,30 @@ public class Filer {
 		return chooser;
 	}
 
+	/**
+	 * Получить файл для сохранения текста посредством диалога сохранения файла.
+	 * 
+	 * @return файл указанный пользователем или null, если пользователь отказался от
+	 *         сохранения файла.
+	 */
+	private File showSaveDialogue() {
+		JFileChooser chooser = getSaveChooser(file);
+		int result = chooser.showSaveDialog(app.getFrame());
+
+		File selectedFile = null;
+		if (result == JFileChooser.APPROVE_OPTION)
+			selectedFile = chooser.getSelectedFile();
+		return selectedFile;
+	}
+
+	/**
+	 * Получить стандартное диалоговое окно для сохранения в файл настроенное в
+	 * соответствии с нуждами программы.
+	 * 
+	 * @param currentFile текущий редактируемый файл или null.
+	 * 
+	 * @return настроенное диалоговое окно.
+	 */
 	private JFileChooser getSaveChooser(File currentFile) {
 		JFileChooser chooser = new JFileChooser();
 		if (currentFile == null)
@@ -278,73 +288,13 @@ public class Filer {
 		return chooser;
 	}
 
-	private boolean saveFileIfNecessary() {
-		if (!fileChanged())
-			return true;
-
-		int retVal = editor.conf("Текст был изменён. Вы хотите сохранить изменения в файле?");
-		if (retVal == JOptionPane.YES_OPTION) {
-			saveFile();
-			return !fileChanged();
-		}
-		if (retVal == JOptionPane.NO_OPTION) {
-			return true;
-		}
-		return false;
-	}
-
-	private void addFileChangedListener() {
-
-		// Понадобится работа с документом
-		Document doc = editor.getPane().getDocument();
-
-		// Замена UndoManager
-		if (undoManager == null)
-			undoManager = new UndoManager();
-
-		doc.removeUndoableEditListener(undoManager);
-		undoManager.discardAllEdits();
-		doc.addUndoableEditListener(undoManager);
-
-		if (act != null) {
-			act.setEnabledUndo(undoManager.canUndo());
-			act.setEnabledRedo(undoManager.canRedo());
-		}
-
-		// Замена слушателя документа
-		doc.addDocumentListener(new DocumentListener() {
-			{
-				doc.removeDocumentListener(this);
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				act.setEnabledUndo(undoManager.canUndo());
-				act.setEnabledRedo(undoManager.canRedo());
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				act.setEnabledUndo(undoManager.canUndo());
-				act.setEnabledRedo(undoManager.canRedo());
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				act.setEnabledUndo(undoManager.canUndo());
-				act.setEnabledRedo(undoManager.canRedo());
-			}
-		});
-	}
-
-	private boolean fileChanged() {
-		return undoManager == null ? false : undoManager.canUndo();
-	}
-
 	private File file = null;
-	private WeekendTextEditor editor;
+
+	private WeekendTextEditor app;
+	private Editor editor;
 	private LastFiles lastFiles;
 	private Finder finder;
+	private Replacer replacer;
+	private Messenger messenger;
 	private Act act;
-	private UndoManager undoManager;
 }

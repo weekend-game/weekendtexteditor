@@ -24,21 +24,21 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 /**
- * Фрейм для указания подстроки и аттрибутов поиска.
+ * Фрейм для указания подстроки, подстроки замены и аттрибутов поиска.
  */
 @SuppressWarnings("serial")
-public abstract class FinderFrame extends JDialog {
+public abstract class ReplacerFrame extends JDialog {
 
 	/**
-	 * Создать фрейм для указания подстроки и аттрибутов поиска.
+	 * Создать фрейм для указания подстроки, подстроки замены и аттрибутов поиска.
 	 * 
 	 * @param owner фрейм в котором расположена JEditorFrame.
 	 */
-	public FinderFrame(JFrame owner) {
-		super(owner, "Найти", false);
+	public ReplacerFrame(JFrame owner) {
+		super(owner, "Заменить", false);
 
 		// Размер и расположение по умолчанию
-		Proper.setBounds(this, 360, 180, 460, 135);
+		Proper.setBounds(this, 370, 190, 460, 220);
 
 		// Перехват нажатия Esc для закрытия фрейма
 		InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
@@ -54,7 +54,7 @@ public abstract class FinderFrame extends JDialog {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent we) {
-				Proper.saveBounds(FinderFrame.this);
+				Proper.saveBounds(ReplacerFrame.this);
 			}
 		});
 
@@ -68,6 +68,8 @@ public abstract class FinderFrame extends JDialog {
 	private void createComponents() {
 		JLabel lblWhat = new JLabel("Что:");
 		fldWhat = new JTextField(50);
+		JLabel lblHow = new JLabel("Чем:");
+		fldHow = new JTextField(50);
 
 		chkCase = new JCheckBox("С учётом регистра");
 
@@ -93,6 +95,26 @@ public abstract class FinderFrame extends JDialog {
 			}
 		});
 
+		JButton btnReplace = new JButton("Заменить");
+		Dimension psReplace = btnReplace.getPreferredSize();
+		psReplace.width = 110;
+		btnReplace.setMinimumSize(psReplace);
+		btnReplace.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				replace();
+			}
+		});
+
+		JButton btnReplaceAll = new JButton("Заменить всё");
+		Dimension psReplaceAll = btnReplaceAll.getPreferredSize();
+		psReplaceAll.width = 110;
+		btnReplaceAll.setMinimumSize(psReplaceAll);
+		btnReplaceAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				replaceAll();
+			}
+		});
+
 		JButton btnCancel = new JButton("Отмена");
 		Dimension psCancel = btnCancel.getPreferredSize();
 		psCancel.width = 110;
@@ -110,9 +132,21 @@ public abstract class FinderFrame extends JDialog {
 		g.addFixR(btnFind, 1);
 
 		g.newLine();
+		g.addFixL(lblHow, 1);
+		g.addExtX(fldHow, 5);
+		g.addFixR(btnReplace, 1);
+
+		g.newLine();
+		g.addHor(6);
+		g.addFixR(btnReplaceAll, 1);
+
+		g.newLine();
+		g.addHor(6);
+		g.addFixR(btnCancel, 1);
+
+		g.newLine();
 		g.addFixL(chkCase, 4);
 		g.addFixL(panDir, 2);
-		g.addFixR(btnCancel, 1);
 	}
 
 	/**
@@ -128,10 +162,20 @@ public abstract class FinderFrame extends JDialog {
 	public abstract void find();
 
 	/**
+	 * Собственно замена. Будет определен в Action.
+	 */
+	public abstract void replace();
+
+	/**
+	 * Собственно замена всего от курсора. Будет определен в Action.
+	 */
+	public abstract void replaceAll();
+
+	/**
 	 * Закрыть фрейм.
 	 */
 	public void close() {
-		Proper.saveBounds(FinderFrame.this);
+		Proper.saveBounds(ReplacerFrame.this);
 		dispose();
 	}
 
@@ -151,6 +195,24 @@ public abstract class FinderFrame extends JDialog {
 	 */
 	public void setPattern(String pattern) {
 		fldWhat.setText(pattern);
+	}
+
+	/**
+	 * Получить подстроку для замещения в тексте.
+	 * 
+	 * @return подстрока для замещения.
+	 */
+	public String getReplacer() {
+		return fldHow.getText();
+	}
+
+	/**
+	 * Установить подстроку для замещения.
+	 * 
+	 * @param replacer подстрока для замещения.
+	 */
+	public void setReplacer(String replacer) {
+		fldHow.setText(replacer);
 	}
 
 	/**
@@ -191,6 +253,8 @@ public abstract class FinderFrame extends JDialog {
 
 	/** Шаблон */
 	protected JTextField fldWhat;
+	/** Текст замены */
+	protected JTextField fldHow;
 	/** Учитывать регистр */
 	private JCheckBox chkCase;
 	/** Искать вверх */

@@ -12,7 +12,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -22,24 +21,32 @@ import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
-import javax.swing.undo.UndoManager;
 
 /**
- * Линейка меню и инструментальная линейка. А так же все Actions которые есть в
- * приложении.
+ * Линейка меню, контекстное меню и инструментальная линейка. А так же все
+ * Actions которые есть в приложении.
  */
 public class Act {
 
 	/**
 	 * Создать объект линейки меню и инструменальной линейки.
 	 * 
-	 * @param editor приложение.
-	 * @param filer  работв с фвйлом.
+	 * @param app       приложение.
+	 * @param editor    панель редактирования
+	 * @param filer     работа с файлом.
+	 * @param lastFiles последние открытые файлы
+	 * @param finder    поиск
+	 * @param replacer  замена
+	 * @param laf       LaF
+	 * @param messenger выдача сообщений
 	 */
-	public Act(WeekendTextEditor editor, Filer filer, Finder finder, LaF laf, LastFiles lastFiles) {
+	public Act(WeekendTextEditor app, Editor editor, Filer filer, LastFiles lastFiles, Finder finder, Replacer replacer,
+			LaF laf, Messenger messenger) {
+
 		this.filer = filer;
-		this.laf = laf;
 		this.lastFiles = lastFiles;
+		this.laf = laf;
+		this.messenger = messenger;
 
 		// Actions могут использоваться как в меню, так и в инструментальной линейке.
 		// Так что лучше их создать и запомнить один раз в конструкторе.
@@ -48,27 +55,29 @@ public class Act {
 		open = getActOpen(filer);
 		save = getActSave(filer);
 		saveAs = getActSaveAs(filer);
-		exit = getActExit(editor);
+		exit = getActExit(app);
 
 		undo = getActUndo(editor);
 		redo = getActRedo(editor);
 
-		cut = getActCut(editor.getPane());
-		copy = getActCopy(editor.getPane());
-		paste = getActPaste(editor.getPane());
-		selectAll = getActSelectAll(editor.getPane());
+		cut = getActCut(editor);
+		copy = getActCopy(editor);
+		paste = getActPaste(editor);
+		selectAll = getActSelectAll(editor);
+
 		find = getActFind(finder);
 		findForward = getActFindForward(finder);
 		findBack = getActFindBack(finder);
+		replace = getActReplace(replacer);
 
-		toolbarOn = getActToolbarOn(editor);
-		statusbarOn = getActStatusbarOn(editor);
+		toolbarOn = getActToolbarOn(app);
+		statusbarOn = getActStatusbarOn(app);
 		monoFont = getActMonoFont(editor);
 		incFontSize = getActIncFontSize(editor);
 		decFontSize = getActDecFontSize(editor);
 		defFontSize = getActDefFontSize(editor);
 
-		about = getActAbout(editor);
+		about = getActAbout(app);
 	}
 
 	/**
@@ -95,6 +104,7 @@ public class Act {
 		editMenu.add(find);
 		editMenu.add(findForward);
 		editMenu.add(findBack);
+		editMenu.add(replace);
 
 		JMenu viewMenu = new JMenu("Вид");
 		ButtonGroup btgLaf = new ButtonGroup();
@@ -182,6 +192,7 @@ public class Act {
 		toolBar.add(find);
 		toolBar.add(findForward);
 		toolBar.add(findBack);
+		toolBar.add(replace);
 
 		return toolBar;
 	}
@@ -207,6 +218,7 @@ public class Act {
 			popupMenu.add(find);
 			popupMenu.add(findForward);
 			popupMenu.add(findBack);
+			popupMenu.add(replace);
 		}
 
 		return popupMenu;
@@ -266,6 +278,15 @@ public class Act {
 	 */
 	public void setEnabledCut(boolean enabled) {
 		cut.setEnabled(enabled);
+	}
+
+	/**
+	 * Получить action для "Заменить..."
+	 * 
+	 * @return action для "Заменить..."
+	 */
+	public AbstractAction getReplaceAction() {
+		return replace;
 	}
 
 	/**
@@ -419,7 +440,7 @@ public class Act {
 	 * @return Action "Выход из программы"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActExit(WeekendTextEditor editor) {
+	private AbstractAction getActExit(WeekendTextEditor app) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Выход");
@@ -429,7 +450,7 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				editor.close();
+				app.close();
 			}
 		};
 	}
@@ -440,7 +461,7 @@ public class Act {
 	 * @return Action "Отменить"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActUndo(WeekendTextEditor editor) {
+	private AbstractAction getActUndo(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Отменить");
@@ -451,9 +472,7 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				UndoManager u = filer.getUndoManager();
-				if (u.canUndo())
-					u.undo();
+				editor.undo();
 			}
 		};
 	}
@@ -464,7 +483,7 @@ public class Act {
 	 * @return Action "Повторить"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActRedo(WeekendTextEditor editor) {
+	private AbstractAction getActRedo(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Повторить");
@@ -475,9 +494,7 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				UndoManager u = filer.getUndoManager();
-				if (u.canRedo())
-					u.redo();
+				editor.redo();
 			}
 		};
 	}
@@ -488,7 +505,7 @@ public class Act {
 	 * @return Action "Вырезать"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActCut(JEditorPane pane) {
+	private AbstractAction getActCut(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Вырезать");
@@ -500,7 +517,7 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				pane.cut();
+				editor.cut();
 			}
 		};
 	}
@@ -511,7 +528,7 @@ public class Act {
 	 * @return Action "Копировать"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActCopy(JEditorPane pane) {
+	private AbstractAction getActCopy(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Копировать");
@@ -523,7 +540,7 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				pane.copy();
+				editor.copy();
 			}
 		};
 	}
@@ -534,7 +551,7 @@ public class Act {
 	 * @return Action "Вставить"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActPaste(JEditorPane pane) {
+	private AbstractAction getActPaste(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Вставить");
@@ -549,7 +566,7 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				pane.paste();
+				editor.paste();
 			}
 		};
 	}
@@ -560,7 +577,7 @@ public class Act {
 	 * @return Action "Выделить всё"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActSelectAll(JEditorPane pane) {
+	private AbstractAction getActSelectAll(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Выделить всё");
@@ -571,8 +588,7 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				pane.requestFocus();
-				pane.selectAll();
+				editor.selectAll();
 			}
 		};
 	}
@@ -642,6 +658,27 @@ public class Act {
 	}
 
 	/**
+	 * "Заменить..."
+	 * 
+	 * @return Action "Заменить..."
+	 */
+	@SuppressWarnings("serial")
+	private AbstractAction getActReplace(Replacer replacer) {
+		return new AbstractAction() {
+			{
+				putValue(Action.NAME, "Заменить...");
+				putValue(Action.SHORT_DESCRIPTION, "Заменить найденное на указанную строку");
+				putValue(Action.SMALL_ICON, getImageIcon("replace.gif"));
+				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK));
+			}
+
+			public void actionPerformed(ActionEvent actionEvent) {
+				replacer.find();
+			}
+		};
+	}
+
+	/**
 	 * "Отображать инструментальную линейку"
 	 * 
 	 * @param editor приложение.
@@ -690,12 +727,10 @@ public class Act {
 	/**
 	 * "Использовать моноширинный шрифт"
 	 * 
-	 * @param editor приложение.
-	 *
 	 * @return Action "Использовать моноширинный шрифт"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActMonoFont(WeekendTextEditor editor) {
+	private AbstractAction getActMonoFont(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Использовать моноширинный шрифт");
@@ -712,13 +747,11 @@ public class Act {
 
 	/**
 	 * "Увеличить шрифт"
-	 * 
-	 * @param editor приложение.
 	 *
 	 * @return Action "Увеличить шрифт"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActIncFontSize(WeekendTextEditor editor) {
+	private AbstractAction getActIncFontSize(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Увеличить шрифт");
@@ -728,20 +761,18 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				editor.setFontSize(1);
+				editor.changeFontSize(1);
 			}
 		};
 	}
 
 	/**
 	 * "Уменьшить шрифт"
-	 * 
-	 * @param editor приложение.
 	 *
 	 * @return Action "Уменьшить шрифт"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActDecFontSize(WeekendTextEditor editor) {
+	private AbstractAction getActDecFontSize(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Уменьшить шрифт");
@@ -751,7 +782,7 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				editor.setFontSize(-1);
+				editor.changeFontSize(-1);
 			}
 		};
 	}
@@ -759,12 +790,10 @@ public class Act {
 	/**
 	 * "Размер шрифта по умолчанию"
 	 * 
-	 * @param editor приложение.
-	 *
 	 * @return Action "Размер шрифта по умолчанию"
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActDefFontSize(WeekendTextEditor editor) {
+	private AbstractAction getActDefFontSize(Editor editor) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, "Размер шрифта по умолчанию");
@@ -774,7 +803,7 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				editor.setFontSize(12D);
+				editor.setFontSize(12);
 			}
 		};
 	}
@@ -798,14 +827,13 @@ public class Act {
 			public void actionPerformed(ActionEvent actionEvent) {
 				String str = "\n" + WeekendTextEditor.APP_NAME + "\n" + WeekendTextEditor.APP_VERSION + "\n"
 						+ WeekendTextEditor.APP_COPYRIGHT + "\n\n" + WeekendTextEditor.APP_OTHER + "\n\n";
-				editor.inf(str, "О программе");
+				messenger.inf(str, "О программе");
 			}
 		};
 	}
 
 	private JMenuBar menu;
 	private JMenu fileMenu;
-
 	private JPopupMenu popupMenu;
 
 	private AbstractAction newFile;
@@ -825,6 +853,7 @@ public class Act {
 	private AbstractAction find;
 	private AbstractAction findForward;
 	private AbstractAction findBack;
+	private AbstractAction replace;
 
 	private AbstractAction toolbarOn;
 	private AbstractAction statusbarOn;
@@ -838,4 +867,5 @@ public class Act {
 	private Filer filer;
 	private LastFiles lastFiles;
 	private LaF laf;
+	private Messenger messenger;
 }
