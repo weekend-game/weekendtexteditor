@@ -35,7 +35,7 @@ public abstract class FinderFrame extends JDialog {
 	 * @param owner фрейм в котором расположена JEditorFrame.
 	 */
 	public FinderFrame(JFrame owner) {
-		super(owner, "Найти", false);
+		super(owner, Loc.get("find"), false);
 
 		// Размер и расположение по умолчанию
 		Proper.setBounds(this, 360, 180, 460, 135);
@@ -66,13 +66,13 @@ public abstract class FinderFrame extends JDialog {
 	 * Отобразить компоненты окна.
 	 */
 	private void createComponents() {
-		JLabel lblWhat = new JLabel("Что:");
+		JLabel lblWhat = new JLabel(Loc.get("what") + ":");
 		fldWhat = new JTextField(50);
 
-		chkCase = new JCheckBox("С учётом регистра");
+		chkCase = new JCheckBox(Loc.get("case_sensitive"));
 
-		opbUp = new JRadioButton("Назад");
-		opbDown = new JRadioButton("Вперёд");
+		opbUp = new JRadioButton(Loc.get("back"));
+		opbDown = new JRadioButton(Loc.get("forward"));
 		ButtonGroup bngDir = new ButtonGroup();
 		bngDir.add(opbUp);
 		bngDir.add(opbDown);
@@ -82,7 +82,7 @@ public abstract class FinderFrame extends JDialog {
 		panDir.add(opbUp);
 		panDir.add(opbDown);
 
-		JButton btnFind = new JButton("Найти далее");
+		JButton btnFind = new JButton(Loc.get("find_next"));
 		getRootPane().setDefaultButton(btnFind);
 		Dimension psFind = btnFind.getPreferredSize();
 		psFind.width = 110;
@@ -93,7 +93,7 @@ public abstract class FinderFrame extends JDialog {
 			}
 		});
 
-		JButton btnCancel = new JButton("Отмена");
+		JButton btnCancel = new JButton(Loc.get("cancel"));
 		Dimension psCancel = btnCancel.getPreferredSize();
 		psCancel.width = 110;
 		btnCancel.setMinimumSize(psCancel);

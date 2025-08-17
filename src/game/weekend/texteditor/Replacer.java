@@ -18,7 +18,7 @@ public class Replacer {
 	 *
 	 * @param pane  собственно JEditorPane.
 	 * @param frame фрейм в котором расположена JEditorPane.
-	 * @param laf объект LaF приложения
+	 * @param laf   объект LaF приложения
 	 */
 	public Replacer(JEditorPane pane, JFrame frame, LaF laf) {
 		this.pane = pane;
@@ -252,7 +252,7 @@ public class Replacer {
 
 			pane.select(position, position + pattern.length());
 		} else
-			WeekendTextEditor.status.showMessage("Не удаётся найти \"" + pattern + "\"");
+			WeekendTextEditor.status.showMessage(Loc.get("unable_to_find") + " \"" + pattern + "\"");
 	}
 
 	private JFrame appFrame;

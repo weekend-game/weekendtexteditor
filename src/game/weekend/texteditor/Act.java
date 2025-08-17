@@ -23,22 +23,22 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
 /**
- * Линейка меню, контекстное меню и инструментальная линейка. А так же все
- * Actions которые есть в приложении.
+ * Menu bar, context menu and toolbar. And also all Actions that are in the
+ * application.
  */
 public class Act {
 
 	/**
-	 * Создать объект линейки меню и инструменальной линейки.
+	 * Create a menu bar, context menu and toolbar object.
 	 * 
-	 * @param app       приложение.
-	 * @param editor    панель редактирования
-	 * @param filer     работа с файлом.
-	 * @param lastFiles последние открытые файлы
-	 * @param finder    поиск
-	 * @param replacer  замена
-	 * @param laf       LaF
-	 * @param messenger выдача сообщений
+	 * @param app       applicateion.
+	 * @param editor    editing panel.
+	 * @param filer     working with file.
+	 * @param lastFiles last opened files.
+	 * @param finder    finder.
+	 * @param replacer  replacer.
+	 * @param laf       L&F.
+	 * @param messenger issuing messages.
 	 */
 	public Act(WeekendTextEditor app, Editor editor, Filer filer, LastFiles lastFiles, Finder finder, Replacer replacer,
 			LaF laf, Messenger messenger) {
@@ -48,8 +48,8 @@ public class Act {
 		this.laf = laf;
 		this.messenger = messenger;
 
-		// Actions могут использоваться как в меню, так и в инструментальной линейке.
-		// Так что лучше их создать и запомнить один раз в конструкторе.
+		// Actions can be used both in the menu and in the toolbar, so it is better to
+		// create and remember them once in the designer.
 
 		newFile = getActNew(filer);
 		open = getActOpen(filer);
@@ -81,9 +81,9 @@ public class Act {
 	}
 
 	/**
-	 * Получить меню приложения.
+	 * Get the application menu.
 	 * 
-	 * @return меню приложения.
+	 * @return the application menu.
 	 */
 	@SuppressWarnings("serial")
 	public JMenuBar getMenuBar() {
@@ -91,7 +91,7 @@ public class Act {
 
 		refreshMenuFile();
 
-		JMenu editMenu = new JMenu("Правка");
+		JMenu editMenu = new JMenu(Loc.get("edit"));
 		editMenu.add(undo);
 		editMenu.add(redo);
 		editMenu.add(new JSeparator());
@@ -106,7 +106,7 @@ public class Act {
 		editMenu.add(findBack);
 		editMenu.add(replace);
 
-		JMenu viewMenu = new JMenu("Вид");
+		JMenu viewMenu = new JMenu(Loc.get("view"));
 		ButtonGroup btgLaf = new ButtonGroup();
 		for (UIManager.LookAndFeelInfo lafi : UIManager.getInstalledLookAndFeels()) {
 			JMenuItem mi = new JRadioButtonMenuItem();
@@ -148,7 +148,7 @@ public class Act {
 		viewMenu.add(decFontSize);
 		viewMenu.add(defFontSize);
 
-		JMenu helpMenu = new JMenu("Справка");
+		JMenu helpMenu = new JMenu(Loc.get("help"));
 		helpMenu.add(about);
 
 		menu.add(fileMenu);
@@ -160,9 +160,9 @@ public class Act {
 	}
 
 	/**
-	 * Получить Toolbar приложения.
+	 * Get the application toolbar.
 	 * 
-	 * @return Toolbar приложения.
+	 * @return the application toolbar.
 	 */
 	@SuppressWarnings("serial")
 	public JToolBar getToolBar() {
@@ -226,19 +226,19 @@ public class Act {
 	}
 
 	/**
-	 * Создать/пересоздать меню "Файл".
+	 * Create/recreate the File menu.
 	 * <p>
-	 * После открытия файла Filer добавляет его в список имен последних открытых
-	 * файлов (LastFiles) и обновляет меню File меню. Поэтому нужен отдельный метод
-	 * для создания/обновления этого меню.
+	 * After opening a file, Filer adds it to the list of names of the last opened
+	 * files (LastFiles) and updates the File menu. Therefore, a separate method is
+	 * needed to create/update this menu.
 	 */
 	public void refreshMenuFile() {
-		// Если меню ещё не создано, то создаю его
+		// If the menu has not yet been created, then I will create it
 		if (fileMenu == null) {
-			fileMenu = new JMenu("Файл");
+			fileMenu = new JMenu(Loc.get("file"));
 			menu.add(fileMenu);
 		} else
-			// А иначе, очищаю от всех пунктов
+			// Otherwise, I clear all points
 			fileMenu.removeAll();
 
 		fileMenu.add(newFile);
@@ -246,15 +246,15 @@ public class Act {
 		fileMenu.add(save);
 		fileMenu.add(saveAs);
 
-		// Получаю список последних открытых файлов
+		// I get a list of recently opened files
 		List<String> list = this.lastFiles.getList();
 
-		// И если таковые были
+		// And if there were any
 		if (list.size() > 0) {
-			// добавляю в меню сепаратор
+			// I add a separator to the menu
 			fileMenu.add(new JSeparator());
 
-			// и список открытых файлов
+			// and a list of open files
 			int i = 1;
 			for (String s : list)
 				fileMenu.add(getActOpenFile(filer, i++, s));
@@ -265,40 +265,39 @@ public class Act {
 	}
 
 	/**
-	 * Активировать/деактивировать пункт меню Copy.
+	 * Activate/deactivate the Cut menu item.
 	 * <p>
-	 * Пункт меню Cut деактивирован. Но если пользователь выделит фрагмент текста,
-	 * то его следует активировать, если пользователь сбросит выделение, то его
-	 * следует деактивировать. Это реализуется слушателем на JEditorPane (см.
-	 * конструктор WeekendTextEditor, фрагмент pane.addCaretListener...), который и
-	 * вызывает этот метод.
+	 * The Cut menu item is disabled. But if the user selects a text fragment, Cut
+	 * should be activated; if the user clears the selection, Cut should be
+	 * disabled. This is implemented by a listener on the JEditorPane (see the
+	 * Editor constructor, pane.addCaretListener...), which calls this method.
 	 * <p>
 	 * 
-	 * @param enabled true - активировать, flase деактивировать пункт меню Copy.
+	 * @param enabled true - activate, flase - deactivate the Copy menu item.
 	 */
 	public void setEnabledCut(boolean enabled) {
 		cut.setEnabled(enabled);
 	}
 
 	/**
-	 * Получить action для "Заменить..."
+	 * Get Action for "Replace..."
 	 * 
-	 * @return action для "Заменить..."
+	 * @return action for "Replace..."
 	 */
 	public AbstractAction getReplaceAction() {
 		return replace;
 	}
 
 	/**
-	 * Активировать/деактивировать пункт меню Copy.
+	 * Activate/deactivate the Copy menu item.
 	 * <p>
-	 * то его следует активировать, если пользователь сбросит выделение, то его
-	 * следует деактивировать. Это реализуется слушателем на JEditorPane (см.
-	 * конструктор WeekendTextEditor, фрагмент pane.addCaretListener...), который и
-	 * вызывает этот метод.
+	 * The Copy menu item is disabled. But if the user selects a text fragment, Copy
+	 * should be activated; if the user clears the selection, Copy should be
+	 * disabled. This is implemented by a listener on the JEditorPane (see the
+	 * Editor constructor, pane.addCaretListener...), which calls this method.
 	 * <p>
 	 * 
-	 * @param enabled true - активировать, flase деактивировать пункт меню Copy.
+	 * @param enabled true - activate, flase - deactivate the Copy menu item.
 	 */
 	public void setEnabledCopy(boolean enabled) {
 		copy.setEnabled(enabled);
@@ -317,18 +316,18 @@ public class Act {
 	}
 
 	/**
-	 * "Создать"
+	 * "New"
 	 * 
-	 * @param filer управление файлом программы.
+	 * @param filer program file management.
 	 * 
-	 * @return Action "Создать"
+	 * @return Action "New".
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActNew(Filer filer) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Создать");
-				putValue(Action.SHORT_DESCRIPTION, "Создать новый файл");
+				putValue(Action.NAME, Loc.get("new"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("create_new_file"));
 				putValue(Action.SMALL_ICON, getImageIcon("new.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
 			}
@@ -340,18 +339,18 @@ public class Act {
 	}
 
 	/**
-	 * "Открыть..."
+	 * "Open..."
 	 * 
-	 * @param filer управление файлом программы.
+	 * @param filer program file management.
 	 * 
-	 * @return Action "Открыть..."
+	 * @return Action "Open..."
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActOpen(Filer filer) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Открыть...");
-				putValue(Action.SHORT_DESCRIPTION, "Открыть файл");
+				putValue(Action.NAME, Loc.get("open") + "...");
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("open_file"));
 				putValue(Action.SMALL_ICON, getImageIcon("open.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 			}
@@ -363,18 +362,18 @@ public class Act {
 	}
 
 	/**
-	 * "Сохранить"
+	 * "Save"
 	 * 
-	 * @param filer управление файлом программы.
+	 * @param filer program file management.
 	 * 
-	 * @return Action "Сохранить"
+	 * @return Action "Save"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActSave(Filer filer) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Сохранить");
-				putValue(Action.SHORT_DESCRIPTION, "Сохранить файл");
+				putValue(Action.NAME, Loc.get("save"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("save_file"));
 				putValue(Action.SMALL_ICON, getImageIcon("save.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
 			}
@@ -386,18 +385,18 @@ public class Act {
 	}
 
 	/**
-	 * "Сохранить как..."
+	 * "Save as..."
 	 * 
-	 * @param filer управление файлом программы.
+	 * @param filer program file management.
 	 * 
-	 * @return Action "Сохранить как..."
+	 * @return Action "Save as..."
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActSaveAs(Filer filer) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Сохранить как...");
-				putValue(Action.SHORT_DESCRIPTION, "Сохранить файл с другим имененм");
+				putValue(Action.NAME, Loc.get("save_as") + "...");
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("save_file_with_a_different_name"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 				putValue(Action.ACCELERATOR_KEY,
 						KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
@@ -410,11 +409,11 @@ public class Act {
 	}
 
 	/**
-	 * Action для имен последних открытых файлов в меню приложения.
+	 * Action for names of recently opened files in the application menu.
 	 * 
-	 * @param no   номер файла 1..N.
-	 * @param name путь и имя файла.
-	 * @return Action для открытия указанного файла.
+	 * @param no   file number 1..N.
+	 * @param name path and file name.
+	 * @return Action to open the specified file.
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActOpenFile(Filer filer, int no, String name) {
@@ -433,18 +432,18 @@ public class Act {
 	}
 
 	/**
-	 * "Выход из программы"
+	 * "Exiting the program"
 	 * 
-	 * @param editor приложение.
+	 * @param viewer application.
 	 *
-	 * @return Action "Выход из программы"
+	 * @return Action "Exiting the program"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActExit(WeekendTextEditor app) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Выход");
-				putValue(Action.SHORT_DESCRIPTION, "Выход из программы");
+				putValue(Action.NAME, Loc.get("exit"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("exiting_the_program"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
 			}
@@ -456,16 +455,16 @@ public class Act {
 	}
 
 	/**
-	 * "Отменить"
+	 * "Undo"
 	 * 
-	 * @return Action "Отменить"
+	 * @return Action "Undo"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActUndo(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Отменить");
-				putValue(Action.SHORT_DESCRIPTION, "Отменить изменения");
+				putValue(Action.NAME, Loc.get("undo"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("undo_changes"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 				putValue(Action.ACCELERATOR_KEY,
 						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
@@ -478,16 +477,16 @@ public class Act {
 	}
 
 	/**
-	 * "Повторить"
+	 * "Redo"
 	 * 
-	 * @return Action "Повторить"
+	 * @return Action "Redo"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActRedo(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Повторить");
-				putValue(Action.SHORT_DESCRIPTION, "Повторить изменения");
+				putValue(Action.NAME, Loc.get("redo"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("redo_changes"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 				putValue(Action.ACCELERATOR_KEY,
 						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
@@ -500,16 +499,16 @@ public class Act {
 	}
 
 	/**
-	 * "Вырезать"
+	 * "Cut"
 	 * 
-	 * @return Action "Вырезать"
+	 * @return Action "Cut"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActCut(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Вырезать");
-				putValue(Action.SHORT_DESCRIPTION, "Вырезать фрагмент");
+				putValue(Action.NAME, Loc.get("cut"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("cut_fragment"));
 				putValue(Action.SMALL_ICON, getImageIcon("cut.gif"));
 				putValue(Action.ACCELERATOR_KEY,
 						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
@@ -523,16 +522,16 @@ public class Act {
 	}
 
 	/**
-	 * "Копировать"
+	 * "Copy"
 	 * 
-	 * @return Action "Копировать"
+	 * @return Action "Copy"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActCopy(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Копировать");
-				putValue(Action.SHORT_DESCRIPTION, "Копировать фрагмент");
+				putValue(Action.NAME, Loc.get("copy"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("copy_fragment"));
 				putValue(Action.SMALL_ICON, getImageIcon("copy.gif"));
 				putValue(Action.ACCELERATOR_KEY,
 						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
@@ -546,22 +545,22 @@ public class Act {
 	}
 
 	/**
-	 * "Вставить"
+	 * "Paste"
 	 * 
-	 * @return Action "Вставить"
+	 * @return Action "Paste"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActPaste(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Вставить");
-				putValue(Action.SHORT_DESCRIPTION, "Вставить фрагмент");
+				putValue(Action.NAME, Loc.get("paste"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("paste_fragment"));
 				putValue(Action.SMALL_ICON, getImageIcon("paste.gif"));
 				putValue(Action.ACCELERATOR_KEY,
 						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
 
-				// Далаю всегда активным. Но было бы полезно при получении фокуса окном,
-				// проверить буфер обмена и уже на основании этого принимать решение.
+				// I always keep it active. But it would be useful to check the clipboard when
+				// the window receives focus and make a decision based on that.
 				setEnabled(true);
 			}
 
@@ -572,16 +571,16 @@ public class Act {
 	}
 
 	/**
-	 * "Выделить всё"
+	 * "Select all"
 	 * 
-	 * @return Action "Выделить всё"
+	 * @return Action "Select all"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActSelectAll(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Выделить всё");
-				putValue(Action.SHORT_DESCRIPTION, "Выделить всё");
+				putValue(Action.NAME, Loc.get("select_all"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("select_all"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 				putValue(Action.ACCELERATOR_KEY,
 						KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
@@ -594,16 +593,16 @@ public class Act {
 	}
 
 	/**
-	 * "Поиск..."
+	 * "Find..."
 	 * 
-	 * @return Action "Поиск..."
+	 * @return Action "Find..."
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActFind(Finder finder) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Поиск...");
-				putValue(Action.SHORT_DESCRIPTION, "Поиск записи по заданному критерию");
+				putValue(Action.NAME, Loc.get("find") + "...");
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("find") + "...");
 				putValue(Action.SMALL_ICON, getImageIcon("find.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
 			}
@@ -615,16 +614,16 @@ public class Act {
 	}
 
 	/**
-	 * "Продолжить поиск вперёд"
+	 * "Continue finding forward"
 	 * 
-	 * @return Action "Продолжить поиск вперёд"
+	 * @return Action "Continue finding forward"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActFindForward(Finder finder) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Продолжить поиск вперёд");
-				putValue(Action.SHORT_DESCRIPTION, "Продолжить поиск вперёд");
+				putValue(Action.NAME, Loc.get("continue_finding_forward"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("continue_finding_forward"));
 				putValue(Action.SMALL_ICON, getImageIcon("findforward.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK));
 			}
@@ -636,16 +635,16 @@ public class Act {
 	}
 
 	/**
-	 * "Продолжить поиск назад"
+	 * "Continue finding backward"
 	 * 
-	 * @return Action "Продолжить поиск назад"
+	 * @return Action "Continue finding backward"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActFindBack(Finder finder) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Продолжить поиск назад");
-				putValue(Action.SHORT_DESCRIPTION, "Продолжить поиск назад");
+				putValue(Action.NAME, Loc.get("continue_finding_backward"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("continue_finding_backward"));
 				putValue(Action.SMALL_ICON, getImageIcon("findback.gif"));
 				putValue(Action.ACCELERATOR_KEY,
 						KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
@@ -658,16 +657,16 @@ public class Act {
 	}
 
 	/**
-	 * "Заменить..."
+	 * "Replace..."
 	 * 
-	 * @return Action "Заменить..."
+	 * @return Action "Replace..."
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActReplace(Replacer replacer) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Заменить...");
-				putValue(Action.SHORT_DESCRIPTION, "Заменить найденное на указанную строку");
+				putValue(Action.NAME, Loc.get("replace") + "...");
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("replace_found_with_specified_string"));
 				putValue(Action.SMALL_ICON, getImageIcon("replace.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK));
 			}
@@ -679,18 +678,18 @@ public class Act {
 	}
 
 	/**
-	 * "Отображать инструментальную линейку"
+	 * "Show toolbar"
 	 * 
-	 * @param editor приложение.
+	 * @param editor application.
 	 *
-	 * @return Action "Отображать инструментальную линейку"
+	 * @return Action "Show toolbar"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActToolbarOn(WeekendTextEditor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Отображать инструментальную линейку");
-				putValue(Action.SHORT_DESCRIPTION, "Отображать инструментальную линейку");
+				putValue(Action.NAME, Loc.get("show_toolbar"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("show_toolbar"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 			}
 
@@ -702,18 +701,18 @@ public class Act {
 	}
 
 	/**
-	 * "Отображать строку состояния"
+	 * "Show status bar"
 	 * 
-	 * @param editor приложение.
+	 * @param editor application.
 	 *
-	 * @return Action "Отображать строку состояния"
+	 * @return Action "Show status bar"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActStatusbarOn(WeekendTextEditor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Отображать строку состояния");
-				putValue(Action.SHORT_DESCRIPTION, "Отображать строку состояния");
+				putValue(Action.NAME, Loc.get("show_status_bar"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("show_status_bar"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 			}
 
@@ -725,16 +724,16 @@ public class Act {
 	}
 
 	/**
-	 * "Использовать моноширинный шрифт"
+	 * "Use monospaced font"
 	 * 
-	 * @return Action "Использовать моноширинный шрифт"
+	 * @return Action "Use monospaced font"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActMonoFont(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Использовать моноширинный шрифт");
-				putValue(Action.SHORT_DESCRIPTION, "Использовать моноширинный шрифт");
+				putValue(Action.NAME, Loc.get("use_monospaced_font"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("use_monospaced_font"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 			}
 
@@ -746,16 +745,16 @@ public class Act {
 	}
 
 	/**
-	 * "Увеличить шрифт"
+	 * "Increase font size"
 	 *
-	 * @return Action "Увеличить шрифт"
+	 * @return Action "Increase font size"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActIncFontSize(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Увеличить шрифт");
-				putValue(Action.SHORT_DESCRIPTION, "Увеличить шрифт");
+				putValue(Action.NAME, Loc.get("increase_font_size"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("increase_font_size"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.CTRL_DOWN_MASK));
 			}
@@ -767,16 +766,16 @@ public class Act {
 	}
 
 	/**
-	 * "Уменьшить шрифт"
+	 * "Decrease font size"
 	 *
-	 * @return Action "Уменьшить шрифт"
+	 * @return Action "Decrease font size"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActDecFontSize(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Уменьшить шрифт");
-				putValue(Action.SHORT_DESCRIPTION, "Уменьшить шрифт");
+				putValue(Action.NAME, Loc.get("decrease_font_size"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("decrease_font_size"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.CTRL_DOWN_MASK));
 			}
@@ -788,16 +787,16 @@ public class Act {
 	}
 
 	/**
-	 * "Размер шрифта по умолчанию"
+	 * "Default font size"
 	 * 
-	 * @return Action "Размер шрифта по умолчанию"
+	 * @return Action "Default font size"
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActDefFontSize(Editor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "Размер шрифта по умолчанию");
-				putValue(Action.SHORT_DESCRIPTION, "Размер шрифта по умолчанию");
+				putValue(Action.NAME, Loc.get("default_font_size"));
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("default_font_size"));
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 				putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_0, InputEvent.CTRL_DOWN_MASK));
 			}
@@ -809,25 +808,25 @@ public class Act {
 	}
 
 	/**
-	 * "О программе"
+	 * "About..."
 	 * 
-	 * @param editor приложение.
+	 * @param viewer приложение.
 	 * 
-	 * @return Action "О программе"
+	 * @return Action "About..."
 	 */
 	@SuppressWarnings("serial")
 	private AbstractAction getActAbout(WeekendTextEditor editor) {
 		return new AbstractAction() {
 			{
-				putValue(Action.NAME, "О программе");
-				putValue(Action.SHORT_DESCRIPTION, "О программе");
+				putValue(Action.NAME, Loc.get("about") + "...");
+				putValue(Action.SHORT_DESCRIPTION, Loc.get("about") + "...");
 				putValue(Action.SMALL_ICON, getImageIcon("empty.gif"));
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
 				String str = "\n" + WeekendTextEditor.APP_NAME + "\n" + WeekendTextEditor.APP_VERSION + "\n"
 						+ WeekendTextEditor.APP_COPYRIGHT + "\n\n" + WeekendTextEditor.APP_OTHER + "\n\n";
-				messenger.inf(str, "О программе");
+				messenger.inf(str, Loc.get("about"));
 			}
 		};
 	}

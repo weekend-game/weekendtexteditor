@@ -17,7 +17,7 @@ public class Filer {
 	public static final String EXTENSION = "txt";
 
 	/** Название файлов */
-	public static final String DESCRIPTION = "*.txt - Текстовый файл";
+	public static final String DESCRIPTION = "*.txt - " + Loc.get("text_file");
 
 	/**
 	 * Создать объект работы с файлами.
@@ -115,7 +115,7 @@ public class Filer {
 			lastFiles.remove(file.getPath());
 
 			// Выдаю сообщение об этом неприятном событии
-			messenger.err("Файл " + file.getPath() + " не найден.");
+			messenger.err(Loc.get("file") + " " + file.getPath() + " " + Loc.get("not_found") + ".");
 
 		} else {
 			try {
@@ -132,7 +132,7 @@ public class Filer {
 				lastFiles.put(file.getPath());
 
 			} catch (IOException e) {
-				messenger.err("Не удалось открыть файл " + file.getPath() + ".\n" + e);
+				messenger.err(Loc.get("failed_to_open_file") + " " + file.getPath() + ".\n" + e);
 			}
 		}
 
@@ -161,10 +161,10 @@ public class Filer {
 
 			act.refreshMenuFile();
 
-			WeekendTextEditor.status.showMessage("Сохранено в файл " + file.getPath());
+			WeekendTextEditor.status.showMessage(Loc.get("saved_to_file") + " " + file.getPath());
 
 		} catch (IOException e) {
-			messenger.err("Не удалось сохранить файл " + file.getPath() + ".\n" + e);
+			messenger.err(Loc.get("failed_to_save_file") + " " + file.getPath() + ".\n" + e);
 		}
 	}
 
@@ -172,7 +172,8 @@ public class Filer {
 		if (!editor.isChanged())
 			return true;
 
-		int retVal = messenger.conf("Текст был изменён. Вы хотите сохранить изменения в файле?");
+		int retVal = messenger
+				.conf(Loc.get("the_text_has_been_changed") + ". " + Loc.get("do_you_want_to_save_the_changes") + "?");
 		if (retVal == JOptionPane.YES_OPTION) {
 			saveFile();
 			return !editor.isChanged();

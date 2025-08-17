@@ -28,48 +28,49 @@ import javax.swing.event.DocumentListener;
 import javax.swing.undo.UndoManager;
 
 /**
- * Редактор текста.
+ * Text editor.
  */
 public class Editor {
 
 	/**
-	 * Создать объект редактора текста.
+	 * Create a text editor object.
 	 */
 	public Editor() {
 		pane = new JEditorPane();
 
-		// Панель редактируемая
+		// The panel is editable
 		pane.setEditable(true);
 
-		// Помещаю её в JScrollPane
+		// I put it in a JScrollPane
 		spane = new JScrollPane();
 		spane.getViewport().add(pane);
 
-		// Размер шрифта
+		// Font size
 		fontSize = Proper.getProperty("FontSize", 12);
 
-		// Использовать моноширинный шрифт
+		// Use monospaced font
 		monoFont = Proper.getProperty("MonoFont", "TRUE").equalsIgnoreCase("TRUE") ? true : false;
 		setMonoFont(monoFont);
 
-		// Перехват Ctrl+H для "Заменить", а не удаления символа перед курсором
+		// Intercept Ctrl+H to "Replace" rather than delete the character before the
+		// cursor
 		InputMap inputMap = pane.getInputMap(JComponent.WHEN_FOCUSED);
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.CTRL_DOWN_MASK), "Replace");
 		ActionMap aMap = pane.getActionMap();
 		aMap.put("Replace", new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
-			// Дело в том, что на момент создания Editor Act ещё не существует,
-			// поэтому, только уже при нажатии кнопки можно обращаться к act.
+			// The thing is that at the time of creation the Editor, Act does not yet exist,
+			// therefore, only when the button is pressed can you access the act.
 			public void actionPerformed(ActionEvent actionEvent) {
 				act.getReplaceAction().actionPerformed(null);
 			}
 		});
 
-		// Перехватываю выделение/сброс выделения текста отображенной выписки
+		// Intercepting text selection
 		pane.addCaretListener(new CaretListener() {
 			public void caretUpdate(CaretEvent ce) {
-				// Если имеется выделенный текст, то разрешить Cut и Copy иначе заблокировать.
+				// If there is selected text, then allow Cut and Copy otherwise block.
 				boolean enabled = pane.getSelectionStart() != pane.getSelectionEnd();
 				if (act != null) {
 					act.setEnabledCut(enabled);
@@ -78,7 +79,7 @@ public class Editor {
 			}
 		});
 
-		// Перехватываю событие Drag and Drop. На самом деле Drop.
+		// Intercepting the Drag and Drop event. Actually Drop.
 		new DropTarget(pane, new DropTargetAdapter() {
 			public void drop(DropTargetDropEvent e) {
 				try {
@@ -94,12 +95,12 @@ public class Editor {
 	}
 
 	/**
-	 * Установить объект управляющий действиями.
+	 * Set the object that controls the actions.
 	 */
 	public void setAct(Act act) {
 		this.act = act;
 
-		// Меню по правой клавише мыши
+		// Context menu
 		popupMenu = act.getPopupMenu();
 		pane.addMouseListener(new MouseAdapter() {
 			@Override
@@ -119,23 +120,23 @@ public class Editor {
 	}
 
 	/**
-	 * Установить объект управляющий файлами.
+	 * Set the file manager object.
 	 */
 	public void setFiler(Filer filer) {
 		this.filer = filer;
 	}
 
 	/**
-	 * Получть компонент редактирования текста программы.
+	 * Get the program's text editing component.
 	 * 
-	 * @return компонент редактирования текста программы.
+	 * @return text editing component.
 	 */
 	public JEditorPane getPane() {
 		return pane;
 	}
 
 	/**
-	 * Получть JScrollPane.
+	 * Get JScrollPane.
 	 * 
 	 * @return JScrollPane.
 	 */
@@ -144,7 +145,7 @@ public class Editor {
 	}
 
 	/**
-	 * Получть JPopupMenu.
+	 * Get JPopupMenu.
 	 * 
 	 * @return JPopupMenu.
 	 */
@@ -153,16 +154,16 @@ public class Editor {
 	}
 
 	/**
-	 * Установить текст для редактирования.
+	 * Set text for editing.
 	 * 
-	 * @param arg - текст для редактирования.
+	 * @param arg - text for editing.
 	 */
 	public void setText(String text) {
 		pane.setText(text);
 		pane.setCaretPosition(0);
 		pane.requestFocus();
 
-		// К новому тексту создается новый UndoManager.
+		// A new UndoManager is created for the new text.
 		if (undoManager == null)
 			undoManager = new UndoManager();
 		else
@@ -171,12 +172,11 @@ public class Editor {
 		pane.getDocument().removeUndoableEditListener(undoManager);
 		pane.getDocument().addUndoableEditListener(undoManager);
 
-		// Его функционал реализует функции меню "Отменить" и "Повторить",
+		// Its functionality implements the "Undo" and "Redo" menu functions.,
 		act.setEnabledUndo(undoManager.canUndo());
 		act.setEnabledRedo(undoManager.canRedo());
 
-		// Замена/установка слушателя документа для поддержания активности пунктов меню
-		// "Отменить" и "Повторить"
+		// Replace/install document listener to keep Undo and Redo menu items active
 		pane.getDocument().addDocumentListener(new DocumentListener() {
 			{
 				pane.getDocument().removeDocumentListener(this);
@@ -201,7 +201,7 @@ public class Editor {
 			}
 		});
 
-		// Замена/установка слушателя документа для пределения наличия изменений
+		// Replace/install document listener to detect changes
 		pane.getDocument().addDocumentListener(new DocumentListener() {
 			{
 				pane.getDocument().removeDocumentListener(this);
@@ -230,9 +230,9 @@ public class Editor {
 	}
 
 	/**
-	 * Текст был изменён текст?
+	 * Has the text been changed?
 	 * 
-	 * @return Да или Нет.
+	 * @return true/false.
 	 */
 
 	public boolean isChanged() {
@@ -240,16 +240,16 @@ public class Editor {
 	}
 
 	/**
-	 * Установить признак наличия изменений в тексте?
+	 * Set the flag for changes in the text.
 	 * 
-	 * @parameter changed признак наличия изменений в тексте.
+	 * @parameter changed the flag of the presence of changes in the text.
 	 */
 	public void setChanged(boolean changed) {
 		this.changed = changed;
 	}
 
 	/**
-	 * "Отменить"
+	 * "Undo"
 	 */
 	public void undo() {
 		if (undoManager.canUndo())
@@ -257,7 +257,7 @@ public class Editor {
 	}
 
 	/**
-	 * "Повторить"
+	 * "Redo"
 	 */
 	public void redo() {
 		if (undoManager.canRedo())
@@ -265,28 +265,28 @@ public class Editor {
 	}
 
 	/**
-	 * "Вырезать"
+	 * "Cut"
 	 */
 	public void cut() {
 		pane.cut();
 	}
 
 	/**
-	 * "Копировать"
+	 * "Copy"
 	 */
 	public void copy() {
 		pane.copy();
 	}
 
 	/**
-	 * "Вставить"
+	 * "Paste"
 	 */
 	public void paste() {
 		pane.paste();
 	}
 
 	/**
-	 * "Выделить всё"
+	 * "Select all"
 	 */
 	public void selectAll() {
 		pane.requestFocus();
@@ -294,9 +294,9 @@ public class Editor {
 	}
 
 	/**
-	 * Использовать моноширинный шрифт.
+	 * Use monospaced font
 	 * 
-	 * @param monoFont true - использовать, false - не использовать
+	 * @param monoFont true/false.
 	 */
 	public void setMonoFont(boolean monoFont) {
 		this.monoFont = monoFont;
@@ -308,9 +308,9 @@ public class Editor {
 	}
 
 	/**
-	 * Изменить размер шрифта.
+	 * Change font size.
 	 * 
-	 * @param step изменить размер шрифта на эту величину
+	 * @param step change the font size to this value.
 	 */
 	public void changeFontSize(int step) {
 		if (fontSize <= 6 && step < 0)
@@ -328,9 +328,9 @@ public class Editor {
 	}
 
 	/**
-	 * Установить размер шрифта.
+	 * Set font size.
 	 * 
-	 * @param size размер шрифта
+	 * @param size font size.
 	 */
 	public void setFontSize(int size) {
 		fontSize = size;

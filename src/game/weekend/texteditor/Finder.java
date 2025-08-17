@@ -175,7 +175,7 @@ public class Finder {
 
 			pane.select(position, position + pattern.length());
 		} else
-			WeekendTextEditor.status.showMessage("Не удаётся найти \"" + pattern + "\"");
+			WeekendTextEditor.status.showMessage(Loc.get("unable_to_find") + " \"" + pattern + "\"");
 	}
 
 	private JFrame appFrame;

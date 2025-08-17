@@ -20,13 +20,13 @@ public class WeekendTextEditor {
 	public static final String APP_NAME = "WeekendTextEditor";
 
 	/** Версия */
-	public static final String APP_VERSION = "Версия 01.10 от 09.08.2025";
+	public static final String APP_VERSION = Loc.get("version") + " 01.20 " + Loc.get("from") + " 17.08.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
 
 	/** Назначение */
-	public static final String APP_OTHER = "Текстовый редактор выходного дня";
+	public static final String APP_OTHER = Loc.get("weekend_text_editor");
 
 	/** Путь к пиктограммам */
 	public static final String IMAGE_PATH = "/game/weekend/texteditor/images/";

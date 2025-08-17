@@ -35,7 +35,7 @@ public abstract class ReplacerFrame extends JDialog {
 	 * @param owner фрейм в котором расположена JEditorFrame.
 	 */
 	public ReplacerFrame(JFrame owner) {
-		super(owner, "Заменить", false);
+		super(owner, Loc.get("replace"), false);
 
 		// Размер и расположение по умолчанию
 		Proper.setBounds(this, 370, 190, 460, 220);
@@ -66,15 +66,15 @@ public abstract class ReplacerFrame extends JDialog {
 	 * Отобразить компоненты окна.
 	 */
 	private void createComponents() {
-		JLabel lblWhat = new JLabel("Что:");
+		JLabel lblWhat = new JLabel(Loc.get("what") + ":");
 		fldWhat = new JTextField(50);
-		JLabel lblHow = new JLabel("Чем:");
+		JLabel lblHow = new JLabel(Loc.get("how") + ":");
 		fldHow = new JTextField(50);
 
-		chkCase = new JCheckBox("С учётом регистра");
+		chkCase = new JCheckBox(Loc.get("case_sensitive"));
 
-		opbUp = new JRadioButton("Назад");
-		opbDown = new JRadioButton("Вперёд");
+		opbUp = new JRadioButton(Loc.get("back"));
+		opbDown = new JRadioButton(Loc.get("forward"));
 		ButtonGroup bngDir = new ButtonGroup();
 		bngDir.add(opbUp);
 		bngDir.add(opbDown);
@@ -84,7 +84,7 @@ public abstract class ReplacerFrame extends JDialog {
 		panDir.add(opbUp);
 		panDir.add(opbDown);
 
-		JButton btnFind = new JButton("Найти далее");
+		JButton btnFind = new JButton(Loc.get("find_next"));
 		getRootPane().setDefaultButton(btnFind);
 		Dimension psFind = btnFind.getPreferredSize();
 		psFind.width = 110;
@@ -95,7 +95,7 @@ public abstract class ReplacerFrame extends JDialog {
 			}
 		});
 
-		JButton btnReplace = new JButton("Заменить");
+		JButton btnReplace = new JButton(Loc.get("replace"));
 		Dimension psReplace = btnReplace.getPreferredSize();
 		psReplace.width = 110;
 		btnReplace.setMinimumSize(psReplace);
@@ -105,7 +105,7 @@ public abstract class ReplacerFrame extends JDialog {
 			}
 		});
 
-		JButton btnReplaceAll = new JButton("Заменить всё");
+		JButton btnReplaceAll = new JButton(Loc.get("replace_all"));
 		Dimension psReplaceAll = btnReplaceAll.getPreferredSize();
 		psReplaceAll.width = 110;
 		btnReplaceAll.setMinimumSize(psReplaceAll);
@@ -115,7 +115,7 @@ public abstract class ReplacerFrame extends JDialog {
 			}
 		});
 
-		JButton btnCancel = new JButton("Отмена");
+		JButton btnCancel = new JButton(Loc.get("cancel"));
 		Dimension psCancel = btnCancel.getPreferredSize();
 		psCancel.width = 110;
 		btnCancel.setMinimumSize(psCancel);
