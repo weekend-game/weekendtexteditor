@@ -24,23 +24,23 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 /**
- * Фрейм для указания подстроки и аттрибутов поиска.
+ * Frame for specifying the substring and search attributes.
  */
 @SuppressWarnings("serial")
 public abstract class FinderFrame extends JDialog {
 
 	/**
-	 * Создать фрейм для указания подстроки и аттрибутов поиска.
+	 * Create a frame to specify the substring and search attributes.
 	 * 
-	 * @param owner фрейм в котором расположена JEditorFrame.
+	 * @param owner the frame in which the JEditorFrame is located.
 	 */
 	public FinderFrame(JFrame owner) {
 		super(owner, Loc.get("find"), false);
 
-		// Размер и расположение по умолчанию
+		// Default size and location
 		Proper.setBounds(this, 360, 180, 460, 135);
 
-		// Перехват нажатия Esc для закрытия фрейма
+		// Intercept Esc press to close frame
 		InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 		inputMap.put(KeyStroke.getKeyStroke("pressed ESCAPE"), "Exit");
 		ActionMap aMap = getRootPane().getActionMap();
@@ -50,7 +50,7 @@ public abstract class FinderFrame extends JDialog {
 			}
 		});
 
-		// Перезват закрытия фрейма для сохранения его размеров и расположния
+		// Intercepting the closing of a frame to save its size and position
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent we) {
@@ -58,12 +58,12 @@ public abstract class FinderFrame extends JDialog {
 			}
 		});
 
-		// Отображаю компоненты окна
+		// Displaying frame components
 		createComponents();
 	}
 
 	/**
-	 * Отобразить компоненты окна.
+	 * Display frame components.
 	 */
 	private void createComponents() {
 		JLabel lblWhat = new JLabel(Loc.get("what") + ":");
@@ -116,19 +116,19 @@ public abstract class FinderFrame extends JDialog {
 	}
 
 	/**
-	 * Фокус в поле What.
+	 * Focus in the What field.
 	 */
 	public void whatFocus() {
 		fldWhat.requestFocus();
 	}
 
 	/**
-	 * Собственно поиск. Будет определен в Action.
+	 * The actual search will be defined in Action.
 	 */
 	public abstract void find();
 
 	/**
-	 * Закрыть фрейм.
+	 * Close frame.
 	 */
 	public void close() {
 		Proper.saveBounds(FinderFrame.this);
@@ -136,65 +136,65 @@ public abstract class FinderFrame extends JDialog {
 	}
 
 	/**
-	 * Получить подстроку для поиска в тексте.
+	 * Get a substring to search for in text.
 	 * 
-	 * @return подстрока для поиска.
+	 * @return substring to search for in text.
 	 */
 	public String getPattern() {
 		return fldWhat.getText();
 	}
 
 	/**
-	 * Установить подстроку для поиска.
+	 * Set the substring to search for.
 	 * 
-	 * @param pattern подстрока для поиска.
+	 * @param substring to search for.
 	 */
 	public void setPattern(String pattern) {
 		fldWhat.setText(pattern);
 	}
 
 	/**
-	 * Получить признак поиска без учёта регистра.
+	 * Get the case-insensitive search flag.
 	 * 
-	 * @return признак поиска без учёта регистра.
+	 * @return case-insensitive search flag.
 	 */
 	public boolean getCase() {
 		return chkCase.isSelected();
 	}
 
 	/**
-	 * Установить признак поиска без учёта регистра.
+	 * Set the search flag to be case-insensitive.
 	 * 
-	 * @param caseSensitive признак поиска без учёта регистра.
+	 * @param caseSensitive case-insensitive search flag.
 	 */
 	public void setCase(boolean caseSensitive) {
 		chkCase.setSelected(caseSensitive);
 	}
 
 	/**
-	 * Получить признак поиска вниз.
+	 * Get the search down flag.
 	 * 
-	 * @return признак поиска вниз.
+	 * @return search down flag.
 	 */
 	public boolean getFindDown() {
 		return opbDown.isSelected();
 	}
 
 	/**
-	 * Установить признак поиска вниз.
+	 * Set the search down flag.
 	 * 
-	 * @param findDown признак поиска вниз.
+	 * @param findDown search down flag.
 	 */
 	public void setFindDown(boolean findDown) {
 		opbDown.setSelected(findDown);
 	}
 
-	/** Шаблон */
+	/** Pattern */
 	protected JTextField fldWhat;
-	/** Учитывать регистр */
+	/** Case sensitive */
 	private JCheckBox chkCase;
-	/** Искать вверх */
+	/** Search up */
 	private JRadioButton opbUp;
-	/** Искать вниз */
+	/** Search down */
 	private JRadioButton opbDown;
 }

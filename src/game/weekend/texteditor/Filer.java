@@ -2,6 +2,10 @@ package game.weekend.texteditor;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.nio.file.Files;
 
 import javax.swing.JFileChooser;
@@ -9,18 +13,22 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 /**
- * Работа с файлами.
+ * Working with files.
  */
 public class Filer {
 
-	/** Расширение файлов */
+	public static final Charset CHARSET = Charset.forName("UTF-8");
+
+	/** File extension */
 	public static final String EXTENSION = "txt";
 
-	/** Название файлов */
-	public static final String DESCRIPTION = "*.txt - " + Loc.get("text_file");
+	/** File name */
+	public static final String DESCRIPTION = "*." + EXTENSION + " - " + Loc.get("text_file");
 
 	/**
-	 * Создать объект работы с файлами.
+	 * Create a file handling object.
+	 * 
+	 * @param viewer the main object of the application.
 	 */
 	public Filer(WeekendTextEditor app, Editor editor, LastFiles lastFiles, Finder finder, Replacer replacer,
 			Messenger messenger) {
@@ -33,14 +41,14 @@ public class Filer {
 	}
 
 	/**
-	 * Установить объект управляющий действиями.
+	 * Set the Act object.
 	 */
 	public void setAct(Act act) {
 		this.act = act;
 	}
 
 	/**
-	 * Реализация "Создать"
+	 * "New"
 	 */
 	public void newFile() {
 		if (!saveFileIfNecessary())
@@ -59,7 +67,7 @@ public class Filer {
 	}
 
 	/**
-	 * Реализация "Открыть..."
+	 * "Open..."
 	 */
 	public void openFile() {
 		if (!saveFileIfNecessary())
@@ -72,7 +80,7 @@ public class Filer {
 	}
 
 	/**
-	 * Реализация "Сохранить"
+	 * "Save"
 	 */
 	public void saveFile() {
 		if (file != null)
@@ -82,7 +90,7 @@ public class Filer {
 	}
 
 	/**
-	 * Реализация "Сохранить как..."
+	 * "Save as..."
 	 */
 	public void saveAsFile() {
 		File file = showSaveDialogue();
@@ -92,7 +100,7 @@ public class Filer {
 	}
 
 	/**
-	 * Открыть файл по имени
+	 * Open file by name
 	 */
 	public void openFileByName(File file) {
 		if (!saveFileIfNecessary())
@@ -102,33 +110,33 @@ public class Filer {
 	}
 
 	/**
-	 * Открыть указнный файл и отобразить его.
+	 * Open the specified file and display it.
 	 * 
-	 * @param file открываемый файл
+	 * @param file file to open
 	 */
 	public void open(File file) {
 		if (file == null)
 			return;
 
 		if (!file.exists()) {
-			// Если файл не обнаружился, то удаляю его из списка последних открытых файлов
+			// If the file is not found, then I delete it from the list of recently opened files
 			lastFiles.remove(file.getPath());
 
-			// Выдаю сообщение об этом неприятном событии
+			// I am issuing a message about this unpleasant event.
 			messenger.err(Loc.get("file") + " " + file.getPath() + " " + Loc.get("not_found") + ".");
 
 		} else {
 			try {
-				String content = Files.readString(file.toPath());
+				String content = Files.readString(file.toPath(), CHARSET);
 				this.file = file;
 
-				// Передаю прочитанное редактору
+				// I'm passing on what I've read to the editor.
 				editor.setText(content);
 
-				// Отображаю имя открытого файла в заголовке приложения
+				// Display the name of the open file in the application title
 				app.getFrame().setTitle(WeekendTextEditor.APP_NAME + " - " + file.getPath());
 
-				// Запоминаю его в списке последних открытых файлов
+				// I remember it in the list of recently opened files
 				lastFiles.put(file.getPath());
 
 			} catch (IOException e) {
@@ -140,23 +148,29 @@ public class Filer {
 	}
 
 	/**
-	 * Сохранить текст в указнный файл.
+	 * Save text to the specified file.
 	 * 
-	 * @param file файл для сохранения текста
+	 * @param file file to save text
 	 */
 	public void save(File file) {
 		if (file == null)
 			return;
 
 		try {
-			Files.write(file.toPath(), editor.getPane().getText().getBytes());
+			CharsetEncoder encoder = CHARSET.newEncoder();
+			ByteBuffer output = encoder.encode(CharBuffer.wrap(editor.getPane().getText()));
+			byte[] bytes = new byte[output.remaining()];
+			output.get(bytes);
+
+			Files.write(file.toPath(), bytes);
+
 			this.file = file;
 			editor.setChanged(false);
 
-			// Отображаю имя файла в заголовке приложения
+			// Display file name in application title
 			app.getFrame().setTitle(WeekendTextEditor.APP_NAME + " - " + file.getPath());
 
-			// Запоминаю его в списке последних открытых файлов
+			// I remember it in the list of recently opened files
 			lastFiles.put(file.getPath());
 
 			act.refreshMenuFile();
@@ -185,10 +199,9 @@ public class Filer {
 	}
 
 	/**
-	 * Получить файл для открытия посредством диалога открытия файла.
+	 * Get a file to open via the file open dialog.
 	 * 
-	 * @return файл указанный пользователем или null, если пользователь отказался от
-	 *         открытия файла.
+	 * @return the file specified by the user, or null if the user declined to open the file.
 	 */
 	private File showOpenDialogue() {
 		JFileChooser chooser = getOpenChooser(file);
@@ -202,12 +215,12 @@ public class Filer {
 	}
 
 	/**
-	 * Получить стандартное диалоговое окно для открытия файла настроенное в
-	 * соответствии с нуждами программы.
+	 * Get a standard dialog box for opening a program file, customized according to
+	 * the needs of the program.
 	 * 
-	 * @param currentFile текущий редактируемый файл.
+	 * @param currentFile the current file being edited.
 	 * 
-	 * @return настроенное диалоговое окно.
+	 * @return customized dialog box.
 	 */
 	private JFileChooser getOpenChooser(File currentFile) {
 		JFileChooser chooser = new JFileChooser();
@@ -237,10 +250,10 @@ public class Filer {
 	}
 
 	/**
-	 * Получить файл для сохранения текста посредством диалога сохранения файла.
+	 * Get a file to save the text through the file save dialog.
 	 * 
-	 * @return файл указанный пользователем или null, если пользователь отказался от
-	 *         сохранения файла.
+	 * @return the file specified by the user, or null if the user declined to save
+	 *         the file.
 	 */
 	private File showSaveDialogue() {
 		JFileChooser chooser = getSaveChooser(file);
@@ -253,17 +266,17 @@ public class Filer {
 	}
 
 	/**
-	 * Получить стандартное диалоговое окно для сохранения в файл настроенное в
-	 * соответствии с нуждами программы.
+	 * Get a standard dialog box for saving to a file, customized according to the
+	 * needs of the program.
 	 * 
-	 * @param currentFile текущий редактируемый файл или null.
+	 * @param currentFile the current file being edited or null.
 	 * 
-	 * @return настроенное диалоговое окно.
+	 * @return customized dialog box.
 	 */
 	private JFileChooser getSaveChooser(File currentFile) {
 		JFileChooser chooser = new JFileChooser();
 		if (currentFile == null)
-			chooser.setSelectedFile(new File("*.txt"));
+			chooser.setSelectedFile(new File("*." + EXTENSION));
 		else
 			chooser.setSelectedFile(currentFile);
 

@@ -24,23 +24,25 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 /**
- * Фрейм для указания подстроки, подстроки замены и аттрибутов поиска.
+ * A frame for specifying the substring, replacement substring, and search
+ * attributes.
  */
 @SuppressWarnings("serial")
 public abstract class ReplacerFrame extends JDialog {
 
 	/**
-	 * Создать фрейм для указания подстроки, подстроки замены и аттрибутов поиска.
+	 * Create a frame to specify the substring, replacement substring, and search
+	 * attributes.
 	 * 
-	 * @param owner фрейм в котором расположена JEditorFrame.
+	 * @param owner the frame in which the JEditorFrame is located.
 	 */
 	public ReplacerFrame(JFrame owner) {
 		super(owner, Loc.get("replace"), false);
 
-		// Размер и расположение по умолчанию
+		// Default size and location
 		Proper.setBounds(this, 370, 190, 460, 220);
 
-		// Перехват нажатия Esc для закрытия фрейма
+		// Intercept Esc press to close frame
 		InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 		inputMap.put(KeyStroke.getKeyStroke("pressed ESCAPE"), "Exit");
 		ActionMap aMap = getRootPane().getActionMap();
@@ -50,7 +52,7 @@ public abstract class ReplacerFrame extends JDialog {
 			}
 		});
 
-		// Перезват закрытия фрейма для сохранения его размеров и расположния
+		// Intercepting the closing of a frame to save its size and position
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent we) {
@@ -58,12 +60,12 @@ public abstract class ReplacerFrame extends JDialog {
 			}
 		});
 
-		// Отображаю компоненты окна
+		// Displaying frame components
 		createComponents();
 	}
 
 	/**
-	 * Отобразить компоненты окна.
+	 * Display frame components.
 	 */
 	private void createComponents() {
 		JLabel lblWhat = new JLabel(Loc.get("what") + ":");
@@ -150,29 +152,29 @@ public abstract class ReplacerFrame extends JDialog {
 	}
 
 	/**
-	 * Фокус в поле What.
+	 * Focus in the What field.
 	 */
 	public void whatFocus() {
 		fldWhat.requestFocus();
 	}
 
 	/**
-	 * Собственно поиск. Будет определен в Action.
+	 * The actual search will be defined in Action.
 	 */
 	public abstract void find();
 
 	/**
-	 * Собственно замена. Будет определен в Action.
+	 * The replacement itself will be defined in Action.
 	 */
 	public abstract void replace();
 
 	/**
-	 * Собственно замена всего от курсора. Будет определен в Action.
+	 * Actually replacing everything from the cursor will be defined in Action.
 	 */
 	public abstract void replaceAll();
 
 	/**
-	 * Закрыть фрейм.
+	 * Close frame.
 	 */
 	public void close() {
 		Proper.saveBounds(ReplacerFrame.this);
@@ -180,85 +182,85 @@ public abstract class ReplacerFrame extends JDialog {
 	}
 
 	/**
-	 * Получить подстроку для поиска в тексте.
+	 * Get a substring to search for in text.
 	 * 
-	 * @return подстрока для поиска.
+	 * @return substring to search for.
 	 */
 	public String getPattern() {
 		return fldWhat.getText();
 	}
 
 	/**
-	 * Установить подстроку для поиска.
+	 * Set the substring to search for.
 	 * 
-	 * @param pattern подстрока для поиска.
+	 * @param pattern substring to search for.
 	 */
 	public void setPattern(String pattern) {
 		fldWhat.setText(pattern);
 	}
 
 	/**
-	 * Получить подстроку для замещения в тексте.
+	 * Get a substring to replace in the text.
 	 * 
-	 * @return подстрока для замещения.
+	 * @return substring to replace.
 	 */
 	public String getReplacer() {
 		return fldHow.getText();
 	}
 
 	/**
-	 * Установить подстроку для замещения.
+	 * Set the substring to replace.
 	 * 
-	 * @param replacer подстрока для замещения.
+	 * @param replacer substring to replace.
 	 */
 	public void setReplacer(String replacer) {
 		fldHow.setText(replacer);
 	}
 
 	/**
-	 * Получить признак поиска без учёта регистра.
+	 * Get the case-insensitive search flag.
 	 * 
-	 * @return признак поиска без учёта регистра.
+	 * @return case-insensitive search flag.
 	 */
 	public boolean getCase() {
 		return chkCase.isSelected();
 	}
 
 	/**
-	 * Установить признак поиска без учёта регистра.
+	 * Set the search flag to be case-insensitive.
 	 * 
-	 * @param caseSensitive признак поиска без учёта регистра.
+	 * @param caseSensitive case-insensitive search flag.
 	 */
 	public void setCase(boolean caseSensitive) {
 		chkCase.setSelected(caseSensitive);
 	}
 
 	/**
-	 * Получить признак поиска вниз.
+	 * Get the search down flag.
 	 * 
-	 * @return признак поиска вниз.
+	 * @return search down flag.
 	 */
 	public boolean getFindDown() {
 		return opbDown.isSelected();
 	}
 
 	/**
-	 * Установить признак поиска вниз.
+	 * Set the search down flag.
 	 * 
-	 * @param findDown признак поиска вниз.
+	 * @param findDown search down flag.
 	 */
 	public void setFindDown(boolean findDown) {
 		opbDown.setSelected(findDown);
 	}
 
-	/** Шаблон */
+	/** Pattern */
 	protected JTextField fldWhat;
-	/** Текст замены */
+	/** Replacement text */
 	protected JTextField fldHow;
-	/** Учитывать регистр */
+	/** Case sensitive */
 	private JCheckBox chkCase;
-	/** Искать вверх */
+	/** Search up */
 	private JRadioButton opbUp;
-	/** Искать вниз */
+	/** Search down */
 	private JRadioButton opbDown;
 }

@@ -38,7 +38,7 @@ public class Editor {
 	public Editor() {
 		pane = new JEditorPane();
 
-		// The panel is editable
+		// The pane is editable
 		pane.setEditable(true);
 
 		// I put it in a JScrollPane

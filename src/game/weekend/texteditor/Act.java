@@ -37,8 +37,8 @@ public class Act {
 	 * @param lastFiles last opened files.
 	 * @param finder    finder.
 	 * @param replacer  replacer.
-	 * @param laf       L&F.
-	 * @param messenger issuing messages.
+	 * @param laf       LaF.
+	 * @param messenger displaying messages.
 	 */
 	public Act(WeekendTextEditor app, Editor editor, Filer filer, LastFiles lastFiles, Finder finder, Replacer replacer,
 			LaF laf, Messenger messenger) {
@@ -148,6 +148,46 @@ public class Act {
 		viewMenu.add(decFontSize);
 		viewMenu.add(defFontSize);
 
+		// Interface language
+
+		viewMenu.add(new JSeparator());
+
+		ButtonGroup btgLan = new ButtonGroup();
+
+		JMenuItem ru = new JRadioButtonMenuItem();
+		ru.setAction(new AbstractAction() {
+			{
+				putValue(Action.NAME, "Русский");
+			}
+
+			public void actionPerformed(ActionEvent ae) {
+				String prevLanguage = Proper.getProperty("Language", "en");
+				Proper.setProperty("Language", "ru");
+				if (!prevLanguage.equalsIgnoreCase("ru"))
+					messenger.inf(Loc.get("restart_the_application"));
+			}
+		});
+		ru.setSelected(Loc.getLanguage().equalsIgnoreCase("ru"));
+		btgLan.add(ru);
+		viewMenu.add(ru);
+
+		JMenuItem en = new JRadioButtonMenuItem();
+		en.setAction(new AbstractAction() {
+			{
+				putValue(Action.NAME, "English");
+			}
+
+			public void actionPerformed(ActionEvent ae) {
+				String prevLanguage = Proper.getProperty("Language", "en");
+				Proper.setProperty("Language", "en");
+				if (!prevLanguage.equalsIgnoreCase("en"))
+					messenger.inf(Loc.get("restart_the_application"));
+			}
+		});
+		en.setSelected(Loc.getLanguage().equalsIgnoreCase("en"));
+		btgLan.add(en);
+		viewMenu.add(en);
+
 		JMenu helpMenu = new JMenu(Loc.get("help"));
 		helpMenu.add(about);
 
@@ -251,7 +291,7 @@ public class Act {
 
 		// And if there were any
 		if (list.size() > 0) {
-			// I add a separator to the menu
+			// add a separator to the menu
 			fileMenu.add(new JSeparator());
 
 			// and a list of open files
@@ -810,12 +850,12 @@ public class Act {
 	/**
 	 * "About..."
 	 * 
-	 * @param viewer приложение.
+	 * @param app application.
 	 * 
 	 * @return Action "About..."
 	 */
 	@SuppressWarnings("serial")
-	private AbstractAction getActAbout(WeekendTextEditor editor) {
+	private AbstractAction getActAbout(WeekendTextEditor app) {
 		return new AbstractAction() {
 			{
 				putValue(Action.NAME, Loc.get("about") + "...");
@@ -824,8 +864,10 @@ public class Act {
 			}
 
 			public void actionPerformed(ActionEvent actionEvent) {
-				String str = "\n" + WeekendTextEditor.APP_NAME + "\n" + WeekendTextEditor.APP_VERSION + "\n"
-						+ WeekendTextEditor.APP_COPYRIGHT + "\n\n" + WeekendTextEditor.APP_OTHER + "\n\n";
+				String str = "\n" + WeekendTextEditor.APP_NAME + "\n" + Loc.get("version") + " "
+						+ WeekendTextEditor.APP_VERSION + " " + Loc.get("from") + " " + WeekendTextEditor.APP_DATE
+						+ "\n" + WeekendTextEditor.APP_COPYRIGHT + "\n\n" + Loc.get(WeekendTextEditor.APP_OTHER)
+						+ "\n\n";
 				messenger.inf(str, Loc.get("about"));
 			}
 		};

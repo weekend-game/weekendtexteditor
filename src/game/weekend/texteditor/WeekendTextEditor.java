@@ -12,75 +12,81 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 /**
- * Приложение WeekendTextEditor.
+ * WeekendTextEditor application.
  */
 public class WeekendTextEditor {
 
-	/** Название приложения */
+	/** Application name */
 	public static final String APP_NAME = "WeekendTextEditor";
 
-	/** Версия */
-	public static final String APP_VERSION = Loc.get("version") + " 01.20 " + Loc.get("from") + " 17.08.2025";
+	/** Version */
+	public static final String APP_VERSION = "01.30";
+
+	/** Date */
+	public static final String APP_DATE = "14.09.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
 
-	/** Назначение */
-	public static final String APP_OTHER = Loc.get("weekend_text_editor");
+	/** Purpose */
+	public static final String APP_OTHER = "weekend_text_editor";
 
-	/** Путь к пиктограммам */
+	/** Path to pictograms */
 	public static final String IMAGE_PATH = "/game/weekend/texteditor/images/";
 
-	/** Строка состояния */
+	/** Status bar */
 	public static final StatusBar status = new StatusBar();
 
 	/**
-	 * Создать приложение. Создаётся окно приложения, объекты необходимые для работы
-	 * и элементы управления окна.
+	 * Create an application. The application frame, objects required for operation,
+	 * and frame controls are created.
 	 */
 	public WeekendTextEditor() {
-		// Хранитель настроек между сеансами работы приложения
+		// Keeper of settings between application sessions
 		Proper.read(APP_NAME);
 
-		// Frame приложения
+		// Interface language
+		Loc.setLanguage(Proper.getProperty("Language", "en"));
+
+		// Application frame
 		frame = new JFrame(APP_NAME);
 		makeJFrame();
 
-		// Сообщения вываваемые для пользователя
+		// Messages
 		Messenger messenger = new Messenger(frame);
 
-		// Редактор текста
+		// Text editor
 		editor = new Editor();
 		frame.getContentPane().add(editor.getScrollPane(), BorderLayout.CENTER);
 
-		// Хранитель имен последних открытых файлов (пяти, например)
+		// Keeper of names of the last opened files (five, for example)
 		lastFiles = new LastFiles(5);
 
 		// Look and Feels
 		LaF laf = new LaF();
 
-		// Поиск в открытом файле
+		// Search in an open file
 		Finder finder = new Finder(editor.getPane(), frame, laf);
 
-		// Замена в открытом файлеs
+		// Replace in open file
 		Replacer replacer = new Replacer(editor.getPane(), frame, laf);
 
-		// Работа с файлами
+		// Working with files
 		filer = new Filer(this, editor, lastFiles, finder, replacer, messenger);
 
-		// Работа с меню и инструментальной линейкой
+		// Working with menus and toolbars
 		act = new Act(this, editor, filer, lastFiles, finder, replacer, laf, messenger);
 
-		// Меню
+		// Menu
 		frame.setJMenuBar(act.getMenuBar());
 
-		// Инструментальная линейка
+		// Toolbar
 		toolbarOn = Proper.getProperty("ToolbarON", "TRUE").equalsIgnoreCase("TRUE") ? true : false;
 		toolbar = act.getToolBar();
 		if (toolbarOn)
 			frame.getContentPane().add(toolbar, BorderLayout.NORTH);
 
-		// Строка состояния
+		// Status bar
 		statusbarOn = Proper.getProperty("StatusbarON", "TRUE").equalsIgnoreCase("TRUE") ? true : false;
 		statusbar = WeekendTextEditor.status.getPanel();
 		if (statusbarOn)
@@ -96,33 +102,32 @@ public class WeekendTextEditor {
 	}
 
 	/**
-	 * Настройка основного окна приложения.
+	 * Customizing the main application frame.
 	 */
 	private void makeJFrame() {
-		// Ничего не делать при попытке закрыть окно, но
+		// Do nothing when trying to close the window, but
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		// перехватить это событие
+		// intercept this event
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				// и вызвать этот метод. В нем будут сохраняться настройки
+				// and call this method. It will save the settings
 				close();
 			}
 		});
 
-		// Для ContentPane ставлю менеджер расположения BorderLayout
-		// (в середине будет JEditorPane для отображения выписки, сверху toolbar)
+		// For ContentPane I set BorderLayout layout manager
 		Container cp = frame.getContentPane();
 		cp.setLayout(new BorderLayout());
 
-		// Восстанавливаю расположение и размеры фрейма, которые он имел в прошлом
-		// сеансе работы
+		// I restore the position and size of the frame that it had in the previous work
+		// session
 		Proper.setBounds(frame);
 	}
 
 	/**
-	 * Запустить приложение.
+	 * Run application .
 	 *
-	 * @param args не используется.
+	 * @param args not used.
 	 */
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -134,9 +139,9 @@ public class WeekendTextEditor {
 	}
 
 	/**
-	 * Отображать инструментальную линейку.
+	 * Display the toolbar.
 	 * 
-	 * @param toolbarON true - отображать, false - не отображать
+	 * @param toolbarON true - display, false - do not display
 	 */
 	public void setTooolbarON(boolean toolbarON) {
 		this.toolbarOn = toolbarON;
@@ -150,9 +155,9 @@ public class WeekendTextEditor {
 	}
 
 	/**
-	 * Отображать строку состояния.
+	 * Display status bar.
 	 * 
-	 * @param statusbarOn отображать или не отображать
+	 * @param statusbarOn true - display, false - do not display
 	 */
 	public void setStatusbarON(boolean statusbarOn) {
 		this.statusbarOn = statusbarOn;
@@ -166,9 +171,9 @@ public class WeekendTextEditor {
 	}
 
 	/**
-	 * Закрыть приложение.
+	 * Close application.
 	 * 
-	 * Сохраняет всё, что нужно сохранить для восстановления при следующем запуске
+	 * Saves everything that needs to be saved for restoration on next startup
 	 */
 	public void close() {
 		Proper.saveBounds(frame);
@@ -178,9 +183,9 @@ public class WeekendTextEditor {
 	}
 
 	/**
-	 * Получить основное окно приложения.
+	 * Get the main application frame.
 	 * 
-	 * @return основное окно приложения.
+	 * @return main application frame.
 	 */
 	public JFrame getFrame() {
 		return frame;

@@ -7,21 +7,21 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
- * Работа с LookAndFeel-ами.
+ * Working with Look and feels.
  */
 public class LaF {
 
-	/** L&amp;F по умолчанию */
+	/** Default L&amp;F */
 	public static String DEFAULT_LAF = "javax.swing.plaf.metal.MetalLookAndFeel";
 
 	/**
-	 * Создать объект для работы с LookAndFeel-ами.
+	 * Create an object for working with Look and feels.
 	 */
 	public LaF() {
 	}
 
 	/**
-	 * Установить указанный L&amp;F.
+	 * Set the specified L&amp;F.
 	 * 
 	 * @param className L&amp;F.
 	 */
@@ -39,18 +39,18 @@ public class LaF {
 	}
 
 	/**
-	 * Получить текущий L&amp;F.
+	 * Get current L&amp;F.
 	 * 
-	 * @return текущий L&amp;F.
+	 * @return current L&amp;F.
 	 */
 	public String getLookAndFeel() {
 		return Proper.getProperty("LaF", DEFAULT_LAF);
 	}
 
 	/**
-	 * Указать перечень компонентов для обнавления L&amp;F.
+	 * Specify the list of components to update.
 	 * 
-	 * @param components перечень компонентов
+	 * @param components list of components
 	 */
 	public void setUpdateComponents(Component... components) {
 		for (Component c : components)
@@ -58,18 +58,18 @@ public class LaF {
 	}
 
 	/**
-	 * Добавить компонент для обновления L&amp;F.
+	 * Add component for renewal L&amp;F.
 	 * 
-	 * @param component компонент
+	 * @param component component
 	 */
 	public void addUpdateComponent(Component component) {
 		components.add(component);
 	}
 
 	/**
-	 * Удалить компонент из списка обновления L&amp;F.
+	 * Delete component from list of components for L&amp;F renewal.
 	 * 
-	 * @param component компонент
+	 * @param component component
 	 */
 	public void removeUpdateComponent(Component component) {
 		components.remove(component);

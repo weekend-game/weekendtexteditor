@@ -9,16 +9,16 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 /**
- * Замена текста отображенного в JEditorPane.
+ * Replace the text displayed in a JEditorPane.
  */
 public class Replacer {
 
 	/**
-	 * Создать объект для замены текста оображенного в JEditorPane.
+	 * Create an object to replace the text displayed in the JEditorPane.
 	 *
-	 * @param pane  собственно JEditorPane.
-	 * @param frame фрейм в котором расположена JEditorPane.
-	 * @param laf   объект LaF приложения
+	 * @param pane  JEditorPane itself.
+	 * @param frame the frame in which the JEditorPane is located.
+	 * @param laf   LaF
 	 */
 	public Replacer(JEditorPane pane, JFrame frame, LaF laf) {
 		this.pane = pane;
@@ -30,15 +30,15 @@ public class Replacer {
 	}
 
 	/**
-	 * Сбросить позицию начала поиска в исходное состояние
+	 * Reset the search start position to its original state.
 	 */
 	public void resetPosition() {
 		position = -1;
 	}
 
 	/**
-	 * Отображение диалогового окна для указания шаблона поиска и затем замена
-	 * указанного шаблона.
+	 * Displays a dialog box for specifying a search pattern and then replaces the
+	 * specified pattern.
 	 */
 	@SuppressWarnings("serial")
 	public void find() {
@@ -54,40 +54,40 @@ public class Replacer {
 
 				@Override
 				public void find() {
-					// Читаю атрибуты поиска
+					// Search attributes
 					pattern = getPattern();
 					Proper.setProperty("Pattern", pattern);
 					caseSensitive = getCase();
 					Proper.setProperty("CaseSensitive", caseSensitive ? "TRUE" : "FALSE");
 
-					// Поиск вперед или назад
+					// Search forward or backward
 					findDown = getFindDown();
 					if (findDown)
 						findForward();
 					else
 						findBack();
 
-					// Курсор на поле шаблона поиска
+					// Focus on the search template field
 					whatFocus();
 				}
 
 				@Override
 				public void replace() {
 
-					// Читаю атрибуты замены
+					// The replacement attributes
 					Proper.setProperty("Replacer", replacer);
 					caseSensitive = getCase();
 					Proper.setProperty("CaseSensitive", caseSensitive ? "TRUE" : "FALSE");
 
-					// Выделение совпадает с шаблоном?
+					// Does the selection match the pattern?
 					if (selectionMatchPattern()) {
 						int start = pane.getSelectionStart();
-						// Заменить выделение
+						// Replace selection
 						pane.replaceSelection(replacer);
-						// Выделить замену
+						// Select replacement
 						pane.select(start, start + pattern.length());
 					} else {
-						// Искать далее
+						// Search further
 						findDown = getFindDown();
 						if (findDown)
 							findForward();
@@ -99,14 +99,14 @@ public class Replacer {
 				@Override
 				public void replaceAll() {
 
-					// Читаю атрибуты замены
+					// Replacement attributes
 					Proper.setProperty("Replacer", replacer);
 					caseSensitive = getCase();
 					Proper.setProperty("CaseSensitive", caseSensitive ? "TRUE" : "FALSE");
 
-					// Выделение НЕ совпадает с шаблоном?
+					// The selection does NOT match the template?
 					if (!selectionMatchPattern()) {
-						// Искать далее
+						// Search further
 						findDown = getFindDown();
 						if (findDown)
 							findForward();
@@ -115,10 +115,10 @@ public class Replacer {
 					}
 
 					while (selectionMatchPattern()) {
-						// Заменить выделение
+						// Replace selection
 						pane.replaceSelection(replacer);
 
-						// Искать далее
+						// Search further
 						findDown = getFindDown();
 						if (findDown)
 							findForward();
@@ -128,7 +128,7 @@ public class Replacer {
 				}
 
 				/**
-				 * Выделение совпадает с шаблоном?
+				 * Does the selection match the pattern?
 				 * 
 				 * @return true/false
 				 */
@@ -158,7 +158,7 @@ public class Replacer {
 	}
 
 	/**
-	 * Искать текущую подстроку вперёд
+	 * Search current substring forward
 	 */
 	private void findForward() {
 		try {
@@ -180,7 +180,7 @@ public class Replacer {
 	}
 
 	/**
-	 * Искать текущую подстроку назад
+	 * Search current substring backwards
 	 */
 	private void findBack() {
 		try {
@@ -200,9 +200,9 @@ public class Replacer {
 	}
 
 	/**
-	 * Получить подстроку для поиска.
+	 * Get the substring to search for.
 	 * 
-	 * @return подстрока для поиска.
+	 * @return substring to search for.
 	 */
 	private String getPattern() {
 		if (!caseSensitive) {
@@ -213,10 +213,10 @@ public class Replacer {
 	}
 
 	/**
-	 * Получить текст отображенный в JEditorPane.
+	 * Get the text displayed in the JEditorPane.
 	 * 
-	 * @return текст отображенный в JEditorPane.
-	 * @throws BadLocationException унаследованное исключение.
+	 * @return text displayed in JEditorPane.
+	 * @throws BadLocationException inherited exception.
 	 */
 	private String getContent() throws BadLocationException {
 		Document d = pane.getDocument();
@@ -228,23 +228,17 @@ public class Replacer {
 	}
 
 	/**
-	 * Выделить найденную подстроку в JEditorPane.
+	 * Select the found substring in JEditorPane.
 	 * 
-	 * @param i позиция в которой начинается найденная подстрока.
-	 * @throws BadLocationException унаследованное исключение.
+	 * @param i the position at which the found substring begins.
+	 * @throws BadLocationException inherited exception.
 	 */
 	private void showResult(int i) throws BadLocationException {
 		if (i >= 0) {
 			position = i;
 			WeekendTextEditor.status.showMessage("");
 
-			// Сделать видимым на экране
-
-			// Это устарело:
-			// pane.scrollRectToVisible(pane.modelToView(position));
-			// , но pane.modelToView2D(position) возвращает Rectangle2D, а не Rectangle.
-			// Преобразование через () приводит, иногда к исключениям, поэтому делаю так:
-
+			// Make visible on screen
 			Rectangle2D rect2D = pane.modelToView2D(position);
 			Rectangle rect = new Rectangle((int) rect2D.getX(), (int) rect2D.getY(), (int) rect2D.getWidth(),
 					(int) rect2D.getHeight());

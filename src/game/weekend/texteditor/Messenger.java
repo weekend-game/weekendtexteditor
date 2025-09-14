@@ -4,51 +4,51 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
- * Сообщения вываваемые для пользователя.
+ * Messages
  */
 public class Messenger {
 
 	/**
-	 * Создать объект выдачи сообщений.
+	 * Create a messages object.
 	 * 
-	 * @param frame основное окно приложения.
+	 * @param frame main application frame.
 	 */
 	public Messenger(JFrame frame) {
 		this.frame = frame;
 	}
 
 	/**
-	 * Выдать сообщение об ошибке.
+	 * Display an error message.
 	 * 
-	 * @param message текст сообщения.
+	 * @param message message text.
 	 */
 	public void err(String message) {
 		JOptionPane.showMessageDialog(frame, message, WeekendTextEditor.APP_NAME, JOptionPane.ERROR_MESSAGE);
 	}
 
 	/**
-	 * Выдать информационное сообщение.
+	 * Display an informational message.
 	 * 
-	 * @param message текст сообщения.
+	 * @param message message text.
 	 */
 	public void inf(String message) {
 		JOptionPane.showMessageDialog(frame, message, WeekendTextEditor.APP_NAME, JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	/**
-	 * Выдать информационное сообщение.
+	 * Display an informational message.
 	 * 
-	 * @param message текст сообщения.
-	 * @param title   заголовок окна.
+	 * @param message message text.
+	 * @param title   frame title.
 	 */
 	public void inf(String message, String title) {
 		JOptionPane.showMessageDialog(frame, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	/**
-	 * Запросить подтверждение.
+	 * Request confirmation.
 	 * 
-	 * @param message текст сообщения.
+	 * @param message message text.
 	 */
 	public int conf(String message) {
 		return JOptionPane.showConfirmDialog(frame, message, WeekendTextEditor.APP_NAME,
