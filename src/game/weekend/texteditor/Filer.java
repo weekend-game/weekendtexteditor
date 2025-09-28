@@ -30,14 +30,12 @@ public class Filer {
 	 * 
 	 * @param viewer the main object of the application.
 	 */
-	public Filer(WeekendTextEditor app, Editor editor, LastFiles lastFiles, Finder finder, Replacer replacer,
-			Messenger messenger) {
+	public Filer(WeekendTextEditor app, Editor editor, LastFiles lastFiles, Finder finder, Replacer replacer) {
 		this.app = app;
 		this.editor = editor;
 		this.lastFiles = lastFiles;
 		this.finder = finder;
 		this.replacer = replacer;
-		this.messenger = messenger;
 	}
 
 	/**
@@ -119,11 +117,12 @@ public class Filer {
 			return;
 
 		if (!file.exists()) {
-			// If the file is not found, then I delete it from the list of recently opened files
+			// If the file is not found, then I delete it from the list of recently opened
+			// files
 			lastFiles.remove(file.getPath());
 
 			// I am issuing a message about this unpleasant event.
-			messenger.err(Loc.get("file") + " " + file.getPath() + " " + Loc.get("not_found") + ".");
+			Mes.err(Loc.get("file") + " " + file.getPath() + " " + Loc.get("not_found") + ".");
 
 		} else {
 			try {
@@ -140,7 +139,7 @@ public class Filer {
 				lastFiles.put(file.getPath());
 
 			} catch (IOException e) {
-				messenger.err(Loc.get("failed_to_open_file") + " " + file.getPath() + ".\n" + e);
+				Mes.err(Loc.get("failed_to_open_file") + " " + file.getPath() + ".\n" + e);
 			}
 		}
 
@@ -178,15 +177,15 @@ public class Filer {
 			WeekendTextEditor.status.showMessage(Loc.get("saved_to_file") + " " + file.getPath());
 
 		} catch (IOException e) {
-			messenger.err(Loc.get("failed_to_save_file") + " " + file.getPath() + ".\n" + e);
+			Mes.err(Loc.get("failed_to_save_file") + " " + file.getPath() + ".\n" + e);
 		}
 	}
 
-	private boolean saveFileIfNecessary() {
+	public boolean saveFileIfNecessary() {
 		if (!editor.isChanged())
 			return true;
 
-		int retVal = messenger
+		int retVal = Mes
 				.conf(Loc.get("the_text_has_been_changed") + ". " + Loc.get("do_you_want_to_save_the_changes") + "?");
 		if (retVal == JOptionPane.YES_OPTION) {
 			saveFile();
@@ -201,7 +200,8 @@ public class Filer {
 	/**
 	 * Get a file to open via the file open dialog.
 	 * 
-	 * @return the file specified by the user, or null if the user declined to open the file.
+	 * @return the file specified by the user, or null if the user declined to open
+	 *         the file.
 	 */
 	private File showOpenDialogue() {
 		JFileChooser chooser = getOpenChooser(file);
@@ -309,6 +309,5 @@ public class Filer {
 	private LastFiles lastFiles;
 	private Finder finder;
 	private Replacer replacer;
-	private Messenger messenger;
 	private Act act;
 }

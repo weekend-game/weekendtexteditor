@@ -201,31 +201,6 @@ public class Editor {
 			}
 		});
 
-		// Replace/install document listener to detect changes
-		pane.getDocument().addDocumentListener(new DocumentListener() {
-			{
-				pane.getDocument().removeDocumentListener(this);
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				changed = true;
-				pane.getDocument().removeDocumentListener(this);
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				changed = true;
-				pane.getDocument().removeDocumentListener(this);
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				changed = true;
-				pane.getDocument().removeDocumentListener(this);
-			}
-		});
-
 		setChanged(false);
 	}
 
@@ -246,6 +221,34 @@ public class Editor {
 	 */
 	public void setChanged(boolean changed) {
 		this.changed = changed;
+
+		if (!changed) {
+
+			// Replace/install document listener to detect changes
+			pane.getDocument().addDocumentListener(new DocumentListener() {
+				{
+					pane.getDocument().removeDocumentListener(this);
+				}
+
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+					Editor.this.changed = true;
+					pane.getDocument().removeDocumentListener(this);
+				}
+
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+					Editor.this.changed = true;
+					pane.getDocument().removeDocumentListener(this);
+				}
+
+				@Override
+				public void changedUpdate(DocumentEvent e) {
+					Editor.this.changed = true;
+					pane.getDocument().removeDocumentListener(this);
+				}
+			});
+		}
 	}
 
 	/**

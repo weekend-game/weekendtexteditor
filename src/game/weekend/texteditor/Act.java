@@ -41,12 +41,11 @@ public class Act {
 	 * @param messenger displaying messages.
 	 */
 	public Act(WeekendTextEditor app, Editor editor, Filer filer, LastFiles lastFiles, Finder finder, Replacer replacer,
-			LaF laf, Messenger messenger) {
+			LaF laf) {
 
 		this.filer = filer;
 		this.lastFiles = lastFiles;
 		this.laf = laf;
-		this.messenger = messenger;
 
 		// Actions can be used both in the menu and in the toolbar, so it is better to
 		// create and remember them once in the designer.
@@ -164,7 +163,7 @@ public class Act {
 				String prevLanguage = Proper.getProperty("Language", "en");
 				Proper.setProperty("Language", "ru");
 				if (!prevLanguage.equalsIgnoreCase("ru"))
-					messenger.inf(Loc.get("restart_the_application"));
+					Mes.inf(Loc.get("restart_the_application"));
 			}
 		});
 		ru.setSelected(Loc.getLanguage().equalsIgnoreCase("ru"));
@@ -181,7 +180,7 @@ public class Act {
 				String prevLanguage = Proper.getProperty("Language", "en");
 				Proper.setProperty("Language", "en");
 				if (!prevLanguage.equalsIgnoreCase("en"))
-					messenger.inf(Loc.get("restart_the_application"));
+					Mes.inf(Loc.get("restart_the_application"));
 			}
 		});
 		en.setSelected(Loc.getLanguage().equalsIgnoreCase("en"));
@@ -868,7 +867,7 @@ public class Act {
 						+ WeekendTextEditor.APP_VERSION + " " + Loc.get("from") + " " + WeekendTextEditor.APP_DATE
 						+ "\n" + WeekendTextEditor.APP_COPYRIGHT + "\n\n" + Loc.get(WeekendTextEditor.APP_OTHER)
 						+ "\n\n";
-				messenger.inf(str, Loc.get("about"));
+				Mes.inf(str, Loc.get("about"));
 			}
 		};
 	}
@@ -908,5 +907,4 @@ public class Act {
 	private Filer filer;
 	private LastFiles lastFiles;
 	private LaF laf;
-	private Messenger messenger;
 }

@@ -20,10 +20,10 @@ public class WeekendTextEditor {
 	public static final String APP_NAME = "WeekendTextEditor";
 
 	/** Version */
-	public static final String APP_VERSION = "01.30";
+	public static final String APP_VERSION = "01.40";
 
 	/** Date */
-	public static final String APP_DATE = "14.09.2025";
+	public static final String APP_DATE = "28.09.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
@@ -53,7 +53,7 @@ public class WeekendTextEditor {
 		makeJFrame();
 
 		// Messages
-		Messenger messenger = new Messenger(frame);
+		Mes.setJFrame(frame);
 
 		// Text editor
 		editor = new Editor();
@@ -72,10 +72,10 @@ public class WeekendTextEditor {
 		Replacer replacer = new Replacer(editor.getPane(), frame, laf);
 
 		// Working with files
-		filer = new Filer(this, editor, lastFiles, finder, replacer, messenger);
+		filer = new Filer(this, editor, lastFiles, finder, replacer);
 
 		// Working with menus and toolbars
-		act = new Act(this, editor, filer, lastFiles, finder, replacer, laf, messenger);
+		act = new Act(this, editor, filer, lastFiles, finder, replacer, laf);
 
 		// Menu
 		frame.setJMenuBar(act.getMenuBar());
@@ -110,6 +110,9 @@ public class WeekendTextEditor {
 		// intercept this event
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
+				if (!filer.saveFileIfNecessary())
+					return;
+
 				// and call this method. It will save the settings
 				close();
 			}

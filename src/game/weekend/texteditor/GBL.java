@@ -92,12 +92,33 @@ public class GBL {
 	 * @param c     component.
 	 * @param width component width.
 	 */
-	public void addExtX(Component c, int width) {
+	public void addExtH(Component c, int width) {
 		gbc.weightx = 1.0;
 		gbc.weighty = 0.0;
 		gbc.gridwidth = width;
 		gbc.gridheight = 1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbl.setConstraints(c, gbc);
+		pane.add(c);
+
+		gbc.gridx += width;
+	}
+
+	/**
+	 * Add a component to the current row and position, stretching it in all
+	 * directions.
+	 *
+	 * @param c     component.
+	 * @param width component width.
+	 * @param hight component hight.
+	 */
+	public void addExtB(Component c, int width, int hight) {
+		gbc.weightx = 1.0;
+		gbc.weighty = 1.0;
+		gbc.gridwidth = width;
+		gbc.gridheight = hight;
+		gbc.fill = GridBagConstraints.BOTH;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbl.setConstraints(c, gbc);
 		pane.add(c);
@@ -122,6 +143,25 @@ public class GBL {
 		pane.add(c);
 
 		gbc.gridx += width;
+	}
+
+	/**
+	 * Add vertical stretch to the current row.
+	 *
+	 * @param height stretch height.
+	 */
+	public void addVer(int height) {
+		gbc.weightx = 0.0;
+		gbc.weighty = 0.1;
+		gbc.gridwidth = 1;
+		gbc.gridheight = height;
+		gbc.fill = GridBagConstraints.VERTICAL;
+		gbc.anchor = GridBagConstraints.CENTER;
+		JLabel c = new JLabel("");
+		gbl.setConstraints(c, gbc);
+		pane.add(c);
+
+		++gbc.gridx;
 	}
 
 	/**

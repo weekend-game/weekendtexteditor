@@ -130,12 +130,12 @@ public abstract class ReplacerFrame extends JDialog {
 		GBL g = new GBL((JPanel) getContentPane(), true);
 
 		g.addFixL(lblWhat, 1);
-		g.addExtX(fldWhat, 5);
+		g.addExtH(fldWhat, 5);
 		g.addFixR(btnFind, 1);
 
 		g.newLine();
 		g.addFixL(lblHow, 1);
-		g.addExtX(fldHow, 5);
+		g.addExtH(fldHow, 5);
 		g.addFixR(btnReplace, 1);
 
 		g.newLine();

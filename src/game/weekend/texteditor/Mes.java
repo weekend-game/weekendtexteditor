@@ -6,15 +6,15 @@ import javax.swing.JOptionPane;
 /**
  * Messages
  */
-public class Messenger {
+public class Mes {
 
 	/**
-	 * Create a messages object.
+	 * Set frame.
 	 * 
-	 * @param frame main application frame.
+	 * @param frame frame.
 	 */
-	public Messenger(JFrame frame) {
-		this.frame = frame;
+	public static void setJFrame(JFrame frame) {
+		Mes.frame = frame;
 	}
 
 	/**
@@ -22,7 +22,7 @@ public class Messenger {
 	 * 
 	 * @param message message text.
 	 */
-	public void err(String message) {
+	public static void err(String message) {
 		JOptionPane.showMessageDialog(frame, message, WeekendTextEditor.APP_NAME, JOptionPane.ERROR_MESSAGE);
 	}
 
@@ -31,7 +31,7 @@ public class Messenger {
 	 * 
 	 * @param message message text.
 	 */
-	public void inf(String message) {
+	public static void inf(String message) {
 		JOptionPane.showMessageDialog(frame, message, WeekendTextEditor.APP_NAME, JOptionPane.INFORMATION_MESSAGE);
 	}
 
@@ -41,7 +41,7 @@ public class Messenger {
 	 * @param message message text.
 	 * @param title   frame title.
 	 */
-	public void inf(String message, String title) {
+	public static void inf(String message, String title) {
 		JOptionPane.showMessageDialog(frame, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
 
@@ -50,10 +50,10 @@ public class Messenger {
 	 * 
 	 * @param message message text.
 	 */
-	public int conf(String message) {
+	public static int conf(String message) {
 		return JOptionPane.showConfirmDialog(frame, message, WeekendTextEditor.APP_NAME,
 				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 	}
 
-	private JFrame frame;
+	private static JFrame frame;
 }
