@@ -5,6 +5,7 @@ import java.awt.Container;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
@@ -20,10 +21,10 @@ public class WeekendTextEditor {
 	public static final String APP_NAME = "WeekendTextEditor";
 
 	/** Version */
-	public static final String APP_VERSION = "01.40";
+	public static final String APP_VERSION = "01.50";
 
 	/** Date */
-	public static final String APP_DATE = "28.09.2025";
+	public static final String APP_DATE = "04.10.2025";
 
 	/** Copyright */
 	public static final String APP_COPYRIGHT = "(c) Weekend Game, 2025";
@@ -117,6 +118,8 @@ public class WeekendTextEditor {
 				close();
 			}
 		});
+
+		frame.setIconImage(new ImageIcon(getClass().getResource(WeekendTextEditor.IMAGE_PATH + "game.gif")).getImage());
 
 		// For ContentPane I set BorderLayout layout manager
 		Container cp = frame.getContentPane();

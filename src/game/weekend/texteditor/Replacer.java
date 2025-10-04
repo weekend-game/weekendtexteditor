@@ -75,6 +75,7 @@ public class Replacer {
 				public void replace() {
 
 					// The replacement attributes
+					replacer = getReplacer();
 					Proper.setProperty("Replacer", replacer);
 					caseSensitive = getCase();
 					Proper.setProperty("CaseSensitive", caseSensitive ? "TRUE" : "FALSE");
@@ -100,6 +101,7 @@ public class Replacer {
 				public void replaceAll() {
 
 					// Replacement attributes
+					replacer = getReplacer();
 					Proper.setProperty("Replacer", replacer);
 					caseSensitive = getCase();
 					Proper.setProperty("CaseSensitive", caseSensitive ? "TRUE" : "FALSE");

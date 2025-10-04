@@ -86,8 +86,11 @@ public class Editor {
 					e.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
 					List<?> list = (List<?>) e.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 					File file = (File) list.get(0);
-					if (filer != null)
-						filer.open(file);
+					if (filer != null) {
+						if (!filer.saveFileIfNecessary())
+							return;
+					}
+					filer.open(file);
 				} catch (Exception ignored) {
 				}
 			}
