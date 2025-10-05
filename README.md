@@ -12,7 +12,7 @@ In Eclipse, select "Import..." from the "File" menu. In the window that opens, s
 
 ### How to use the program
 
-This text editor is based on the bank statement viewer and inherits its entire user interface ( see here ). Of course, the opened file is now displayed as a text file, not as a table. New features have been added.
+This text editor is based on the bank statement viewer and inherits its entire user interface ( [see here](https://weekend-game.github.io/bankviewer.htm#HowToUse) ). Of course, the opened file is now displayed as a text file, not as a table. New features have been added.
 
 The "File" menu now includes the following options: "Create," "Save," and "Save As." They work the same way as in all programs.
 
